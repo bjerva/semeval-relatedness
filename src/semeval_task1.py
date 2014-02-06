@@ -545,8 +545,8 @@ if __name__ == '__main__':
     save_semeval_data.plot_deviation(outputs, trial_targets)
 
     # Write to MESH
-    save_semeval_data.write_to_mesh(train_sources, train_targets, [line[0] for line in sick_train], True) #sick_ids
-    save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
+    #save_semeval_data.write_to_mesh(train_sources, train_targets, [line[0] for line in sick_train], True) #sick_ids
+    #save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
     #time.sleep(1) # Necessary?
     os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < src/sick_evaluation.R')
