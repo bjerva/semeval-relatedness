@@ -1,0 +1,21 @@
+#!/bin/bash
+
+mkdir -p working/sick2/
+SICK=working/sick2
+run()
+{
+    for I in `ls ${SICK}`; do
+	if [ -f ${SICK}/${I}/t ]; then
+	    OPTIONS1="--tp vampire --mb paradox --mbbis mace --contradiction --copula --x --info --resolve false"
+	    OPTIONS2="--tp vampire --mb paradox --mbbis mace --contradiction --copula --x --info --resolve"
+	    bin/nc --dir ${SICK}/${I} ${OPTIONS1}
+	    if [ `cat ${SICK}/${I}/prediction.txt | grep word | wc -l` -gt 0 ]; then
+		bin/nc --dir ${SICK}/${I} ${OPTIONS2}
+#		# PLAN B (Paraphrase substitution)
+#		par ${I}
+	    fi
+	fi	
+    done
+}
+run
+#arrf
