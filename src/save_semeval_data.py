@@ -16,7 +16,7 @@ def write_for_evaluation(outputs, sick_ids):
     by the provided R script.
     """
     POST_PROCESS = False
-    with open('foo.txt', 'w') as out_f:
+    with open('./working/foo.txt', 'w') as out_f:
         out_f.write('pair_ID\tentailment_judgment\trelatedness_score\n')
         for i, line in enumerate(outputs):
             data = line
@@ -51,7 +51,7 @@ def plot_deviation(outputs, actual):
     pl.xlabel('Sentence no.')
     pl.ylabel('Relatedness')
 
-    pl.savefig('foo2.png', bbox_inches='tight')
+    pl.savefig('./working/foo2.png', bbox_inches='tight')
 
 
 def plot_results(regr, params, X_test, y_test, feature_names):
@@ -99,7 +99,7 @@ def plot_results(regr, params, X_test, y_test, feature_names):
     pl.xlabel('Relative Importance')
     pl.title('Feature Importance')
 
-    pl.savefig('foo.png', bbox_inches='tight')
+    pl.savefig('./working/foo.png', bbox_inches='tight')
 
 def write_to_mesh(sources, targets, ids, training):
     """
