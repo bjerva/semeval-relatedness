@@ -38,3 +38,6 @@ nosetests.xml
 
 # Python stuff
 *.pickle
+
+# Mesh
+*.mesh
