@@ -72,7 +72,7 @@ def plot_results(regr, params, X_test, y_test, feature_names):
     print "optimal", best, test_score[best]
     """
 
-    pl.figure(figsize=(12, 6))
+    pl.figure(figsize=(12, 10))
     pl.subplot(1, 2, 1)
     """
     pl.title('Deviance')
