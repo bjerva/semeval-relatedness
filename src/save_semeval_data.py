@@ -15,10 +15,44 @@ def write_for_evaluation(outputs, sick_ids):
     Write test results to a file conforming to what is expected
     by the provided R script.
     """
-    with open('working/foo.txt', 'w') as out_f:
+    POST_PROCESS = False
+    with open('foo.txt', 'w') as out_f:
         out_f.write('pair_ID\tentailment_judgment\trelatedness_score\n')
         for i, line in enumerate(outputs):
-            out_f.write('{0}\t{1}\t{2}\n'.format(sick_ids[i], 'NA', line))
+            data = line
+
+            # Fix that predictions are sometimes out of range
+            if POST_PROCESS: 
+                if data > 5.0:
+                    data = 5.0
+                elif data < 1.0:
+                    data = 1.0
+
+
+            out_f.write('{0}\t{1}\t{2}\n'.format(sick_ids[i], 'NA', data))
+
+
+def plot_deviation(outputs, actual):
+    pl.figure(figsize=(12, 6))
+    pl.subplot(1, 2, 1)
+    pl.title('Comparison')
+
+    zipped = sorted(zip(outputs, actual), key=lambda x: x[1])
+    outputs = [i[0] for i in zipped]
+    actual = [i[1] for i in zipped]
+
+
+    pl.plot(np.arange(len(outputs)) + 1, outputs, 'b.', 
+        label='Predicted values')
+    pl.plot(np.arange(len(outputs)) + 1, actual, 'r-', 
+        label='Actual values')
+
+    pl.legend(loc='upper right')
+    pl.xlabel('Sentence no.')
+    pl.ylabel('Relatedness')
+
+    pl.savefig('foo2.png', bbox_inches='tight')
+
 
 def plot_results(regr, params, X_test, y_test, feature_names):
     """
@@ -28,21 +62,29 @@ def plot_results(regr, params, X_test, y_test, feature_names):
     ###############################################################################
     # Plot training deviance
     # Compute test set deviance
+    """
     test_score = np.zeros((params['n_estimators'],), dtype=np.float64)
 
     for i, y_pred in enumerate(regr.staged_decision_function(X_test)):
         test_score[i] = regr.loss_(y_test, y_pred)
 
+    best = np.argmin(test_score)
+    print "optimal", best, test_score[best]
+    """
+
     pl.figure(figsize=(12, 6))
     pl.subplot(1, 2, 1)
+    """
     pl.title('Deviance')
     pl.plot(np.arange(params['n_estimators']) + 1, regr.train_score_, 'b-', 
         label='Training Set Deviance')
     pl.plot(np.arange(params['n_estimators']) + 1, test_score, 'r-', 
         label='Test Set Deviance')
+
     pl.legend(loc='upper right')
     pl.xlabel('Boosting Iterations')
     pl.ylabel('Deviance')
+    """
 
     ###############################################################################
     # Plot feature importance
@@ -57,20 +99,16 @@ def plot_results(regr, params, X_test, y_test, feature_names):
     pl.xlabel('Relative Importance')
     pl.title('Feature Importance')
 
-    pl.savefig('working/foo.png', bbox_inches='tight')
+    pl.savefig('foo.png', bbox_inches='tight')
 
-def write_to_mesh(data):
+def write_to_mesh(sources, targets, ids, training):
     """
     Write features to output for use with MESH.
     Currently not used.
     """
-    with open('rte.mesh', 'w') as out_f:
-        c = 0
-        for line in data:
-            rep = sentence_composition(line[1], line[2])
-            out = line[4]
-            out_f.write('Item "{0}" 1 "null"\n'.format(c))
-            out_f.write('Input {0} '.format(' '.join([str(i) for i in rep])))
-            out_f.write('Target {0}\n\n'.format(' '.join(['1' 
-                        if i == out else '0' for i in xrange(3)])))
-            c += 1
+    fname = 'rte_train.mesh' if training else 'rte_trial.mesh'
+    with open(fname, 'w') as out_f:
+        for i, line in enumerate(sources):
+            out_f.write('Item "{0}" 1 "{1}"\n'.format(i, ids[i]))
+            out_f.write('Input {0} '.format(' '.join([str(j) for j in line])))
+            out_f.write('Target {0}\n\n'.format(targets[i]))
