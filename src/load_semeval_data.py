@@ -35,7 +35,6 @@ twt = TreebankWordTokenizer()
 judgement_ids = defaultdict(lambda:len(judgement_ids))
 prediction_ids = defaultdict(lambda:len(prediction_ids))
 prover_ids = defaultdict(lambda:len(prover_ids))
-word_ids = defaultdict(lambda:len(word_ids))
 
 wvec_path = './wvec/'
 
@@ -56,7 +55,8 @@ def load_embeddings():
     except IOError:
         if DEBUG: stdout.write(' error - processing txt-file instead (~15 mins)..')  
 
-        projections = load_word2vec(vector_file)
+        
+        projections, word_ids = load_word2vec(vector_file)
         with open('google_news_ids.pickle', 'wb') as out_f:
             cPickle.dump(dict(word_ids), out_f, -1)
         with open('google_news_np.pickle', 'wb') as out_f:
@@ -78,6 +78,7 @@ def load_word2vec(f_name):
 
     # NP matrix for word projections
     word_projections = np.zeros( (vocab_size, dimensions), dtype=np.float64)
+    word_ids = defaultdict(lambda:len(word_ids))
 
     if DEBUG: print 'filling rep matrix'
     with open(wvec_path+f_name, 'r') as in_f:
@@ -86,7 +87,7 @@ def load_word2vec(f_name):
             word_id = word_ids[fields[0].lower()]
             word_projections[word_id] = [float(i) for i in fields[1:]]
 
-    return word_projections
+    return word_projections, word_ids
 
 
 def load_sick_data():
