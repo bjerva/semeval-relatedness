@@ -41,6 +41,7 @@ import random
 import numpy as np
 from sys import argv, stdout
 from subprocess import check_output, call, Popen, PIPE
+from collections import defaultdict
 
 import requests
 
@@ -55,17 +56,6 @@ from nltk.corpus.reader.wordnet import WordNetError
 import load_semeval_data
 import save_semeval_data
 import drs_complexity
-
-# Load the paraphrases data.
-paraphrases = {}
-for line in open(ppdb):
-    source = line.split('|')[1][1:-1]
-    target = line.split('|')[4][1:-1]
-    if source in paraphrases:
-        paraphrases[source].append(target)
-    else:
-        paraphrases[source] = [target]
-
 
 def getReplacements(t, h):
     """
@@ -460,7 +450,7 @@ def get_features(line):
         johan_neutral(line[0])                         # Johans prediction of neutral
             ]
 
-            
+
 # Hard-coded paths
 ppdb = 'working/ppdb.1'
 wvec_path = 'working/'
@@ -477,13 +467,23 @@ DEBUG = True
 USE_BIGRAMS = False  # Slightly worse results when this is switched on
 USE_TRIGRAMS = True
 
-RECALC_FEATURES = False # Remember to switch if features are changed
+RECALC_FEATURES = True # Remember to switch if features are changed
 
 # Hard-coded paths
-wvec_path = '/home/p269101/Dev/trunk/'
-shared_sick = '/home/p269101/Dev/candc2/candc/working/sick/'
+#wvec_path = '/home/p269101/Dev/trunk/'
+shared_sick = './working/sick/'
+ppdb = './working/ppdb.1'
 
 if __name__ == '__main__':
+    # Load the paraphrases data.
+    paraphrases = {}
+    for line in open(ppdb):
+        source = line.split('|')[1][1:-1]
+        target = line.split('|')[4][1:-1]
+        if source in paraphrases:
+            paraphrases[source].append(target)
+        else:
+            paraphrases[source] = [target]
 
     # Load sick data
     sick_data = load_semeval_data.load_sick_data()
@@ -492,6 +492,16 @@ if __name__ == '__main__':
     split = int(len(sick_data)*0.9)
     sick_train = sick_data[:split]
     sick_test = sick_data[split:]
+
+    # Calculate stop
+    word_freqs = defaultdict(int)
+    for line in sick_data:
+        for word in line[1]+line[2]:
+            word_freqs[word] += 1
+
+    stop_list = set(sorted(word_freqs,key=word_freqs.get,reverse=True)[:3])
+
+    print stop_list
 
     print 'test size: {0}, training size: {1}'.format(len(sick_test), len(sick_train))
 

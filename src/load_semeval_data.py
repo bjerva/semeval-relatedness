@@ -36,7 +36,7 @@ judgement_ids = defaultdict(lambda:len(judgement_ids))
 prediction_ids = defaultdict(lambda:len(prediction_ids))
 prover_ids = defaultdict(lambda:len(prover_ids))
 
-wvec_path = '/home/p269101/Dev/trunk/'
+wvec_path = './wvec/'
 
 def load_embeddings():
     """
@@ -155,7 +155,7 @@ def load_sick_data_from_txt(f_name):
     return data
 
 def get_shared_features(pair_id, sentence_a, sentence_b):
-    root = '/home/p269101/Dev/candc2/candc/working/sick/'+pair_id
+    root = './working/sick/'+pair_id
     data = ()
     with open(root+'/prediction.txt', 'r') as in_f:
         line = in_f.readline().lower().strip()
@@ -183,7 +183,7 @@ def get_shared_features(pair_id, sentence_a, sentence_b):
 
 url = 'http://127.0.0.1:7777/raw/pipeline?format=xml'
 def get_and_write_complexities(pair_id, sentence_a, sentence_b):
-    root = '/home/p269101/Dev/candc2/candc/working/sick/'+pair_id
+    root = './working/sick/'+pair_id
 
     r = requests.post(url, data=' '.join(sentence_a))
     complexity_a = drs_complexity.parse_xml(r.text)
