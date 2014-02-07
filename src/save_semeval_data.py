@@ -47,7 +47,7 @@ def plot_deviation(outputs, actual):
     pl.plot(np.arange(len(outputs)) + 1, actual, 'r-', 
         label='Actual values')
 
-    pl.legend(loc='upper right')
+    pl.legend(loc='upper left')
     pl.xlabel('Sentence no.')
     pl.ylabel('Relatedness')
 
