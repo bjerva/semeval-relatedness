@@ -407,6 +407,9 @@ feature_names = np.array([
     #'RELATION',
     'RELATION2',
     'WORDS3',
+    'joh_c',
+    'joh_e',
+    'joh_n'
 
     ], dtype='|S7')
 def get_features(line):
@@ -436,9 +439,9 @@ def get_features(line):
         #relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
         relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
         word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
-        #johan_contradiction(line[0]),                  # Johans prediction of contradiction
-        #johan_entailment(line[0]),                     # Johans prediction of entailment
-        #johan_neutral(line[0])                         # Johans prediction of neutral
+        johan_contradiction(line[0]),                  # Johans prediction of contradiction
+        johan_entailment(line[0]),                     # Johans prediction of entailment
+        johan_neutral(line[0])                         # Johans prediction of neutral
             ]
 
 '''
@@ -473,6 +476,9 @@ USE_BIGRAMS = False  # Slightly worse results when this is switched on
 USE_TRIGRAMS = True
 
 RECALC_FEATURES = True # Remember to switch this to True if features are changed
+
+
+WRITE_TO_MESH = True # Write to mesh (ann)
 
 # Hard-coded paths
 shared_sick = './working/sick/'
@@ -549,8 +555,9 @@ if __name__ == '__main__':
     save_semeval_data.plot_deviation(outputs, trial_targets)
 
     # Write to MESH
-    #save_semeval_data.write_to_mesh(train_sources, train_targets, [line[0] for line in sick_train], True) #sick_ids
-    #save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
+    if WRITE_TO_MESH:
+        save_semeval_data.write_to_mesh(train_sources, train_targets, [line[0] for line in sick_train], True) #sick_ids
+        save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
     #time.sleep(1) # Necessary?
     os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < src/sick_evaluation.R')
