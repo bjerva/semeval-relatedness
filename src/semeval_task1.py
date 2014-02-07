@@ -402,9 +402,12 @@ feature_names = np.array([
     'MOD_NV',
     #'WORDS2',
     'DRS_COMPLEXITY',
-    'INSTANCE',
-    'RELATION',
-    'WORDS3'
+    #'INSTANCE',
+    'INSTANCE2',
+    #'RELATION',
+    'RELATION2',
+    'WORDS3',
+
     ], dtype='|S7')
 def get_features(line):
     """
@@ -428,9 +431,9 @@ def get_features(line):
         #line[11],                            # Word Overlap
         abs(line[12]-line[13]),              # DRS Complexity
 
-        instance_overlap(line[0], line[1], line[2]),   # Instances overlap in models
+        #instance_overlap(line[0], line[1], line[2]),   # Instances overlap in models
         instance_overlap2(line[0], line[1], line[2]),  # Instances overlap with the help of paraphrases
-        relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
+        #relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
         relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
         word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
         #johan_contradiction(line[0]),                  # Johans prediction of contradiction
