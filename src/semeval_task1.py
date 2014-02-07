@@ -210,7 +210,7 @@ def johan_entailment(id):
     for line in open('working/results.raw'):
         words = line.split()
         if words[0] == str(id):
-            if words[len(words)-1] == 'ENTAILEMENT':
+            if words[len(words)-1] == 'ENTAILMENT':
                  return 1
             else:
                  return 0  
@@ -410,7 +410,6 @@ feature_names = np.array([
     'joh_c',
     'joh_e',
     'joh_n'
-
     ], dtype='|S7')
 def get_features(line):
     """
@@ -476,7 +475,6 @@ USE_BIGRAMS = False  # Slightly worse results when this is switched on
 USE_TRIGRAMS = True
 
 RECALC_FEATURES = True # Remember to switch this to True if features are changed
-
 
 WRITE_TO_MESH = True # Write to mesh (ann)
 
