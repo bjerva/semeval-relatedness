@@ -429,9 +429,9 @@ def get_features(line):
         abs(line[12]-line[13]),              # DRS Complexity
 
         instance_overlap(line[0], line[1], line[2]),   # Instances overlap in models
-        #instance_overlap2(line[0], line[1], line[2]),  # Instances overlap with the help of paraphrases
+        instance_overlap2(line[0], line[1], line[2]),  # Instances overlap with the help of paraphrases
         relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
-        #relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
+        relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
         word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
         #johan_contradiction(line[0]),                  # Johans prediction of contradiction
         #johan_entailment(line[0]),                     # Johans prediction of entailment
@@ -469,10 +469,11 @@ DEBUG = True
 USE_BIGRAMS = False  # Slightly worse results when this is switched on
 USE_TRIGRAMS = True
 
-RECALC_FEATURES = False # Remember to switch this to True if features are changed
+RECALC_FEATURES = True # Remember to switch this to True if features are changed
 
 # Hard-coded paths
 shared_sick = './working/sick/'
+shared_sick2 = './working/sick2/'
 ppdb = './working/ppdb.1'
 
 if __name__ == '__main__':
