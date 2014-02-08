@@ -347,7 +347,6 @@ def drs_complexity_difference(sentence_a, sentence_b):
 
     return abs(sent_a_complexity-sent_b_complexity)
 
-
 def regression(X_train, y_train, X_test, y_test):
     """
     Train the regressor from Scikit-Learn.
@@ -369,7 +368,7 @@ def regression(X_train, y_train, X_test, y_test):
     #regr = linear_model.ElasticNet(alpha=alpha, l1_ratio=0.7)
 
     # Random forest regressor w/ param optimization
-    params = {'n_estimators':800, 'criterion':'mse', 'max_depth':18, 'min_samples_split':1, #'estimators':1000, depth:18
+    params = {'n_estimators':1000, 'criterion':'mse', 'max_depth':20, 'min_samples_split':1, #'estimators':400, depth:20
               'min_samples_leaf':1, 'max_features':2, 'bootstrap':True, 'oob_score':False,  #'max_features':'log2'
               'n_jobs':32, 'random_state':0, 'verbose':1, 'min_density':None, 'max_leaf_nodes':None}
     regr = RandomForestRegressor(**params)
@@ -394,7 +393,7 @@ feature_names = np.array([
     #'SYN_DIST', 
     'LENGTH',
     #'GOLD_ENT',
-    'ENTAILMENT',
+    'BOXER',
     'PROVER',
     'DOM_NV', 
     'REL_NV', 
@@ -409,7 +408,8 @@ feature_names = np.array([
     'WORDS3',
     'joh_c',
     'joh_e',
-    'joh_n'
+    'joh_n',
+    'dummy'
     ], dtype='|S7')
 def get_features(line):
     """
@@ -424,7 +424,7 @@ def get_features(line):
         #synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
         sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length
         #line[4],                             # Gold standard entailment judgement (inflated)
-        line[5],                             # Prediction from Johan's system
+        line[5],                             # Boxer prediction
         line[6],                             # Prover output
         line[7],                             # Domain novelty                  
         line[8],                             # Relation novelty
@@ -474,7 +474,7 @@ DEBUG = True
 USE_BIGRAMS = False  # Slightly worse results when this is switched on
 USE_TRIGRAMS = True
 
-RECALC_FEATURES = True # Remember to switch this to True if features are changed
+RECALC_FEATURES = False # Remember to switch this to True if features are changed
 
 WRITE_TO_MESH = True # Write to mesh (ann)
 
@@ -509,6 +509,7 @@ if __name__ == '__main__':
             word_freqs[word] += 1
 
     stop_list = set(sorted(word_freqs,key=word_freqs.get,reverse=True)[:3]) # 3 stop seems the best
+    stop_list.add('of') #FIXME
     print 'stop list:', stop_list
 
     print 'test size: {0}, training size: {1}'.format(len(sick_test), len(sick_train))
