@@ -95,9 +95,9 @@ def load_sick_data():
     Attempt to load sick data from binary,
     otherwise fall back to txt.
     """
-    sick_path = '/home/p269101/corp/sick/'
-    sick_train = 'train/SICK_train.txt'
-    sick_trial = 'trial/SICK_trial.txt'
+    sick_path = './working/sick/'
+    sick_train = 'SICK_train.txt'
+    sick_trial = 'SICK_trial.txt'
 
     try:
         if DEBUG: stdout.write('loading sick from archives.. ')
@@ -143,14 +143,10 @@ def load_sick_data_from_txt(f_name):
 
             document_data = (pair_id, sentence_a, sentence_b, relatedness, judgement_ids[judgement])
 
-            #if WRITE_COMPLEXITY:
-            #    get_and_write_complexities(str(pair_id), raw_sentence_a, raw_sentence_b)
-
             if USE_BOXER:
                 boxer_features = get_shared_features(str(pair_id), raw_sentence_a, raw_sentence_b)
                 document_data = document_data + boxer_features
 
-            
             data.append(document_data)
 
     return data
@@ -198,16 +194,6 @@ def get_and_write_complexities(pair_id, sentence_a, sentence_b):
     print pair_id, complexity_a, complexity_b
     return (complexity_a, complexity_b)
 
-
-"""
-unknown.   % prover output    
--1.   % domain novelty   
--1.   % relation novelty 
--1.   % wordnet novelty  
-1.   % model novelty    
-0.5.   % word overlap
-"""
-
 def load_shared_sick_data(path):
     """
     Load shared sick data, parsed with boxer etc.
@@ -240,12 +226,5 @@ def load_shared_sick_data(path):
 
     print "done", corr
     print "fail", err
-            
-    #root = /home/p269101/Dev/candc2/candc/working/sick/24
-    #files=
-    #['t', 'h', 'gold.sim', 'gold.rte', 't.tok', 'h.tok', 'th.tok', 't.ccg', 'h.ccg', 
-    #'th.ccg', 'prediction.txt', 'modsizedif.txt', 't.drs', 'h.drs', 'th.drs', 'kt.mwn', 
-    #'kh.mwn', 'kth.mwn', 'vampire.in', 'paradox.in', 'vampire.out', 'paradox.out', 
-    #'tpmb.out', 't.mod', 'h.mod', 'th.mod', 'tth.mod']
 
     return data
