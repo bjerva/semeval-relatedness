@@ -15,14 +15,13 @@ def write_for_evaluation(outputs, sick_ids):
     Write test results to a file conforming to what is expected
     by the provided R script.
     """
-    POST_PROCESS = False
     with open('./working/foo.txt', 'w') as out_f:
         out_f.write('pair_ID\tentailment_judgment\trelatedness_score\n')
         for i, line in enumerate(outputs):
             data = line
 
             # Fix that predictions are sometimes out of range
-            if POST_PROCESS: 
+            if config.POST_PROCESS: 
                 if data > 5.0:
                     data = 5.0
                 elif data < 1.0:

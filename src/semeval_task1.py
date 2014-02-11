@@ -44,6 +44,7 @@ from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 import load_semeval_data
 import save_semeval_data
 import feature_extraction
+import config
 
 def regression(X_train, y_train, X_test, y_test):
     """
@@ -166,32 +167,9 @@ def get_features(line):
             ]
 '''
 
-#########################
-##### PARAMS ############
-#########################
-DEBUG = True
-USE_BIGRAMS = False  # Slightly worse results when this is switched on
-USE_TRIGRAMS = True
-
-RECALC_FEATURES = True # Remember to switch this to True if features are changed
-
-WRITE_TO_MESH = True # Write to mesh (ann)
-
-# Hard-coded paths
-shared_sick = './working/sick/'
-shared_sick2 = './working/sick2/'
-ppdb = './working/ppdb.1'
 
 if __name__ == '__main__':
-    # Load the paraphrases data.
-    paraphrases = {}
-    for line in open(ppdb):
-        source = line.split('|')[1][1:-1]
-        target = line.split('|')[4][1:-1]
-        if source in paraphrases:
-            paraphrases[source].append(target)
-        else:
-            paraphrases[source] = [target]
+    
 
     # Load sick data
     sick_data = load_semeval_data.load_sick_data()
@@ -201,6 +179,7 @@ if __name__ == '__main__':
     sick_train = sick_data[:split]
     sick_test = sick_data[split:]
 
+    '''
     # Calculate stop list
     word_freqs = defaultdict(int)
     for line in sick_data:
@@ -210,12 +189,13 @@ if __name__ == '__main__':
     stop_list = set(sorted(word_freqs,key=word_freqs.get,reverse=True)[:3]) # 3 stop seems the best
     stop_list.add('of') #FIXME
     print 'stop list:', stop_list
+    '''
 
     print 'test size: {0}, training size: {1}'.format(len(sick_test), len(sick_train))
 
-    if RECALC_FEATURES:
+    if config.RECALC_FEATURES:
         # Load projection data
-        word_ids, projections = load_semeval_data.load_embeddings()
+        #word_ids, projections = load_semeval_data.load_embeddings()
 
         # Extract training features and targets
         print 'Feature extraction (train)...'

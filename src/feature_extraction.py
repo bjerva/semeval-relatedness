@@ -18,6 +18,22 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import WordNetError
 
 import drs_complexity
+import load_semeval_data
+import config
+
+if config.RECALC_FEATURES:
+    # Load projection data
+    word_ids, projections = load_semeval_data.load_embeddings()
+
+    # Load the paraphrases data.
+    paraphrases = {}
+    for line in open(config.ppdb):
+        source = line.split('|')[1][1:-1]
+        target = line.split('|')[4][1:-1]
+        if source in paraphrases:
+            paraphrases[source].append(target)
+        else:
+            paraphrases[source] = [target]
 
 def get_replacements(t, h):
     """
@@ -42,12 +58,12 @@ def instance_overlap(id, sentence_a, sentence_b):
     """
     Calculate the amount of overlap between the instances in the models of sentence_a (t) and sentence_b (h).
     """
-    kthFile = os.path.join(shared_sick, str(id), 'kth.mod')
+    kthFile = os.path.join(config.shared_sick, str(id), 'kth.mod')
     if not os.path.isfile(kthFile):
         return 0
     kth = get_number_of_instances(kthFile)
-    kt = get_number_of_instances(os.path.join(shared_sick, str(id), 'kt.mod'))
-    kh = get_number_of_instances(os.path.join(shared_sick, str(id), 'kh.mod'))
+    kt = get_number_of_instances(os.path.join(config.shared_sick, str(id), 'kt.mod'))
+    kh = get_number_of_instances(os.path.join(config.shared_sick, str(id), 'kh.mod'))
     if kh == 0:
         return 0
     return 1 - (kth - kt) / kh
@@ -59,20 +75,20 @@ def instance_overlap2(id, sentence_a, sentence_b):
     And also try to do the same while replacing words with paraphrases to obtain a higher score.
     """
     score = 0
-    kthFile = os.path.join(shared_sick, str(id), 'kth.mod')
+    kthFile = os.path.join(config.shared_sick, str(id), 'kth.mod')
     if not os.path.isfile(kthFile):
         score = 0
     else:
         kth = get_number_of_instances(kthFile)
-        kt = get_number_of_instances(os.path.join(shared_sick, str(id), 'kt.mod'))
-        kh = get_number_of_instances(os.path.join(shared_sick, str(id), 'kh.mod'))
+        kt = get_number_of_instances(os.path.join(config.shared_sick, str(id), 'kt.mod'))
+        kh = get_number_of_instances(os.path.join(config.shared_sick, str(id), 'kh.mod'))
         if kh == 0:
             score = 0
         else: 
             score = 1 - (kth - kt) / kh
 
     for counter in range(1,8):
-        newfolder = os.path.join(shared_sick2,'{0}.{1}'.format(str(id), counter))
+        newfolder = os.path.join(config.shared_sick2,'{0}.{1}'.format(str(id), counter))
         if os.path.isfile(os.path.join(newfolder, 'kth.mod')):
             kth = get_number_of_instances(os.path.join(newfolder, 'kth.mod'))
             kt = get_number_of_instances(os.path.join(newfolder, 'kt.mod'))
@@ -97,12 +113,12 @@ def relation_overlap(id, sentence_a, sentence_b):
     """
     Calculate the amount of overlap between the relations in the models of sentence_a (t) and sentence_b (h).
     """
-    kthFile = os.path.join(shared_sick, str(id), 'kth.mod')
+    kthFile = os.path.join(config.shared_sick, str(id), 'kth.mod')
     if not os.path.isfile(kthFile):
         return 0
-    kth = get_number_of_relations(os.path.join(shared_sick, str(id), 'kth.mod'))
-    kt = get_number_of_relations(os.path.join(shared_sick, str(id), 'kt.mod'))
-    kh = get_number_of_relations(os.path.join(shared_sick, str(id), 'kh.mod'))
+    kth = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kth.mod'))
+    kt = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kt.mod'))
+    kh = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kh.mod'))
     if kh == 0:
         return 0
     return 1 - (kth -kt) / kh
@@ -113,20 +129,20 @@ def relation_overlap2(id, sentence_a, sentence_b):
     And also try to do the same while replacing words with paraphrases to obtain a higher score.
     """
     score = 0
-    kthFile = os.path.join(shared_sick, str(id), 'kth.mod')
+    kthFile = os.path.join(config.shared_sick, str(id), 'kth.mod')
     if not os.path.isfile(kthFile):
         score = 0
     else:
-        kth = get_number_of_relations(os.path.join(shared_sick, str(id), 'kth.mod'))
-        kt = get_number_of_relations(os.path.join(shared_sick, str(id), 'kt.mod'))
-        kh = get_number_of_relations(os.path.join(shared_sick, str(id), 'kh.mod'))
+        kth = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kth.mod'))
+        kt = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kt.mod'))
+        kh = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kh.mod'))
         if kh == 0:
             score = 0
         else:
             score = 1 - (kth -kt) / kh
     
     for counter in range(1,8):
-        newfolder = os.path.join(shared_sick2,'{0}.{1}'.format(str(id), counter))
+        newfolder = os.path.join(config.shared_sick2,'{0}.{1}'.format(str(id), counter))
         if os.path.isfile(os.path.join(newfolder, 'kth.mod')):
             kth = get_number_of_relations(os.path.join(newfolder, 'kth.mod'))
             kt = get_number_of_relations(os.path.join(newfolder, 'kt.mod'))
@@ -142,14 +158,14 @@ def word_overlap2(sentence_a, sentence_b):
     Calculate the word overlap of two sentences and tries to use paraphrases to get a higher score
     """
     
-    a_set = set(word for word in sentence_a) - stop_list
-    b_set = set(word for word in sentence_b) - stop_list
+    a_set = set(word for word in sentence_a) - config.stop_list
+    b_set = set(word for word in sentence_b) - config.stop_list
     score = len(a_set&b_set)/float(len(a_set|b_set))
 
     for replacement in get_replacements(sentence_a, sentence_b):
         sentence_a[sentence_a.index(replacement[0])] = replacement[1]
-        a_set = set(word for word in sentence_a) - stop_list
-        b_set = set(word for word in sentence_b) - stop_list
+        a_set = set(word for word in sentence_a) - config.stop_list
+        b_set = set(word for word in sentence_b) - config.stop_list
         newScore = len(a_set&b_set)/float(len(a_set|b_set))
         if newScore > score:
             score = newScore
@@ -196,7 +212,7 @@ def bigrams(sentence):
     """
     return [word+'_'+sentence[i+1] 
             if word+'_'+sentence[i+1] in word_ids else None 
-                for i, word in enumerate(sentence[:-1])] if USE_BIGRAMS else []
+                for i, word in enumerate(sentence[:-1])] if config.USE_BIGRAMS else []
 
 def trigrams(sentence):
     """
@@ -205,7 +221,7 @@ def trigrams(sentence):
     """
     return [word+'_'+sentence[i+1]+'_'+sentence[i+2] 
             if word+'_'+sentence[i+1]+'_'+sentence[i+2] in word_ids else None 
-                for i, word in enumerate(sentence[:-2])] if USE_TRIGRAMS else []
+                for i, word in enumerate(sentence[:-2])] if config.USE_TRIGRAMS else []
         
 def sentence_composition(sentence_a, sentence_b):
     """
@@ -285,8 +301,8 @@ def word_overlap(sentence_a, sentence_b):
     """
     Calculate the word overlap of two sentences.
     """
-    a_set = set(word for word in sentence_a) - stop_list
-    b_set = set(word for word in sentence_b) - stop_list
+    a_set = set(word for word in sentence_a) - config.stop_list
+    b_set = set(word for word in sentence_b) - config.stop_list
     score = len(a_set&b_set)/float(len(a_set|b_set))# len(s1&s2)/max(len(s1),len(s2))
 
     return score
