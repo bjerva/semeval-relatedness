@@ -17,6 +17,8 @@ WRITE_COMPLEXITY = True # Write DRS complexity
 # Paths
 shared_sick = './working/sick/'     # Directory containing sick files
 shared_sick2 = './working/sick2/'   # Directory containing alternate sick files
+sick_train = 'SICK_train.txt'       # File name for training
+sick_trial = 'SICK_trial.txt'       # File name for trial/testing
 ppdb = './working/ppdb.1'           # Directory containing paraphrase files
 wvec_path = './wvec/'               # Directory containing word embeddings
 

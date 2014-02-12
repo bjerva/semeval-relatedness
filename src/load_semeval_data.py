@@ -90,10 +90,6 @@ def load_sick_data():
     Attempt to load sick data from binary,
     otherwise fall back to txt.
     """
-    sick_path = './working/sick/'
-    sick_train = 'SICK_train.txt'
-    sick_trial = 'SICK_trial.txt'
-
     try:
         if config.DEBUG: stdout.write('loading sick from archives.. ')
 
@@ -103,8 +99,8 @@ def load_sick_data():
     except IOError:
         if config.DEBUG: stdout.write(' error - loading from txt-files..')
     
-        sick_data =  load_sick_data_from_txt(sick_path+sick_train)
-        sick_data.extend( load_sick_data_from_txt(sick_path+sick_trial) )
+        sick_data =  load_sick_data_from_txt(shared_sick+sick_train)
+        sick_data.extend( load_sick_data_from_txt(shared_sick+sick_trial) )
         with open('sick.pickle', 'wb') as out_f:
             cPickle.dump(sick_data, out_f, -1)
     
