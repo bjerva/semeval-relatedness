@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-'''
+"""
 Parameters for semeval task 1
-'''
+"""
 
 # Parameters
 DEBUG = True         # More informative printouts

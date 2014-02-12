@@ -31,15 +31,9 @@ python src/semeval_task1_test.py
 __author__ = 'Johannes Bjerva'
 __email__  = 'j.bjerva@rug.nl'
 
-import cPickle
-import numpy as np
 import os
-from sys import argv, stdout
-from collections import defaultdict
-
-from sklearn import linear_model
-from sklearn.svm import SVR
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 
 import load_semeval_data
 import save_semeval_data
@@ -50,22 +44,6 @@ def regression(X_train, y_train, X_test, y_test):
     """
     Train the regressor from Scikit-Learn.
     """
-    # Set params for regression
-    # These work well
-    #params = {'n_estimators': 2000, 'max_depth': 2, 'min_samples_split': 0.5, 'subsample': 0.45,
-    #          'learning_rate': 0.08, 'random_state': 0, 'loss': 'huber', 'alpha': 0.8} 
-
-    # These work better (GradientBoost)
-    #params = {'n_estimators': 1000, 'max_depth': 3, 'min_samples_split': 1, 'subsample': 0.7,
-    #          'learning_rate': 0.07, 'random_state': 0, 'loss': 'huber', 'alpha': 0.7,
-    #          'min_samples_leaf': 1, 'verbose': 0}#, 'max_features':1} 
-    #regr = GradientBoostingRegressor(**params)
-
-    # Tested regressors
-    #regr = linear_model.LinearRegression()#(alpha = .01)
-    #regr = SVR(kernel='poly', C=1e3, degree=2)
-    #regr = linear_model.ElasticNet(alpha=alpha, l1_ratio=0.7)
-
     # Random forest regressor w/ param optimization
     params = {'n_estimators':1000, 'criterion':'mse', 'max_depth':20, 'min_samples_split':1, #'estimators':400, depth:20
               'min_samples_leaf':1, 'max_features':2, 'bootstrap':True, 'oob_score':False,  #'max_features':'log2'
@@ -78,13 +56,15 @@ def regression(X_train, y_train, X_test, y_test):
     # Plot the resutls
     save_semeval_data.plot_results(regr, params, X_test, y_test, feature_names)
 
-    # Show the mean squared error
-    print("Residual sum of squares: %.2f" % np.mean((regr.predict(X_test) - y_test) ** 2))
-    # Explained variance score: 1 is perfect prediction
-    print('Variance score: %.2f' % regr.score(X_test, y_test))
+    if config.DEBUG: 
+        # Show the mean squared error
+        print("Residual sum of squares: %.2f" % np.mean((regr.predict(X_test) - y_test) ** 2))
+        # Explained variance score: 1 is perfect prediction
+        print('Variance score: %.2f' % regr.score(X_test, y_test))
     
     return regr
 
+# Array containing the names of all features, for plotting purposes
 feature_names = np.array([
     'CDSM', 
     #'WORDS', 
@@ -116,7 +96,7 @@ def get_features(line):
     Comment out / add lines to disable / add features.
     Add the name to the feature_names array.
     """
-    return [
+    features = [
         feature_extraction.sentence_distance(line[1], line[2]), # Cosine distance between sentences
         #word_overlap(line[1], line[2]),      # Proportion of word overlap
         feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
@@ -137,66 +117,18 @@ def get_features(line):
         #relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
         feature_extraction.relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
         feature_extraction.word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
-        feature_extraction.johan_result(line[0])
-        #johan_contradiction(line[0]),                  # Johans prediction of contradiction
-        #johan_entailment(line[0]),                     # Johans prediction of entailment
-        #johan_neutral(line[0])                         # Johans prediction of neutral
             ]
 
-'''
-def get_features(line):
+    features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
+
+    return features
+
+def retrieve_features(sick_train, sick_test):
     """
-    Feature extraction.
-    Comment out / add lines to disable / add features.
-    Add the name to the feature_names array.
+    Retrieve feature vectors, either by recalculating from text-files,
+    or by loading from a pre-saved binary.
     """
-    return [
-        instance_overlap(line[0], line[1], line[2]),   # Instances overlap in models
-        instance_overlap2(line[0], line[1], line[2]),  # Instances overlap with the help of paraphrases
-        relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
-        relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
-        word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
-        #sentence_distance(line[1], line[2]),           # Cosine distance between sentences
-        #word_overlap(line[1], line[2]),                # Proportion of word overlap
-        #synset_overlap(line[1], line[2]),              # Proportion of synset lemma overlap
-        #sentence_lengths(line[1], line[2]),            # Proportion of difference in sentence length
-        #line[4]/2.0,                                   # Gold standard entailment judgement (inflated)
-        johan_contradiction(line[0]),                  # Johans prediction of contradiction
-        johan_entailment(line[0]),                     # Johans prediction of entailment
-        johan_neutral(line[0])                         # Johans prediction of neutral
-            ]
-'''
-
-
-if __name__ == '__main__':
-    
-
-    # Load sick data
-    sick_data = load_semeval_data.load_sick_data()
-
-    # Split into training/test
-    split = int(len(sick_data)*0.9)
-    sick_train = sick_data[:split]
-    sick_test = sick_data[split:]
-
-    '''
-    # Calculate stop list
-    word_freqs = defaultdict(int)
-    for line in sick_data:
-        for word in line[1]+line[2]:
-            word_freqs[word] += 1
-
-    stop_list = set(sorted(word_freqs,key=word_freqs.get,reverse=True)[:3]) # 3 stop seems the best
-    stop_list.add('of') #FIXME
-    print 'stop list:', stop_list
-    '''
-
-    print 'test size: {0}, training size: {1}'.format(len(sick_test), len(sick_train))
-
     if config.RECALC_FEATURES:
-        # Load projection data
-        #word_ids, projections = load_semeval_data.load_embeddings()
-
         # Extract training features and targets
         print 'Feature extraction (train)...'
         train_sources = np.array([get_features(line) for line in sick_train])
@@ -220,6 +152,21 @@ if __name__ == '__main__':
             trial_sources = np.load(in_f)
             trial_targets = np.load(in_f)
 
+    return train_sources, train_targets, trial_sources, trial_targets
+
+def main():
+    # Load sick data
+    sick_data = load_semeval_data.load_sick_data()
+
+    # Split into training/test
+    split = int(len(sick_data)*0.9)
+    sick_train = sick_data[:split]
+    sick_test = sick_data[split:]
+    if config.DEBUG: print ('test size: {0}, training size: {1}'.format(len(sick_test), len(sick_train)))
+
+    # Get training and trial features
+    train_sources, train_targets, trial_sources, trial_targets = retrieve_features(sick_train, sick_test)
+
     # Train the regressor
     clf = regression(train_sources, train_targets, trial_sources, trial_targets)
 
@@ -233,13 +180,29 @@ if __name__ == '__main__':
     save_semeval_data.plot_deviation(outputs, trial_targets)
 
     # Write to MESH
-    if WRITE_TO_MESH:
+    if config.WRITE_TO_MESH:
         save_semeval_data.write_to_mesh(train_sources, train_targets, [line[0] for line in sick_train], True) #sick_ids
         save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
-    #time.sleep(1) # Necessary?
+    # Run the evaluation script
     os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < src/sick_evaluation.R')
 
+
+if __name__ == '__main__':
+    main()
+
+
+'''
+# Calculate stop list
+word_freqs = defaultdict(int)
+for line in sick_data:
+    for word in line[1]+line[2]:
+        word_freqs[word] += 1
+
+stop_list = set(sorted(word_freqs,key=word_freqs.get,reverse=True)[:3]) # 3 stop seems the best
+stop_list.add('of') #FIXME
+print 'stop list:', stop_list
+'''
 #DSM + Words
 '''
 [1] "Processing foo.txt"
@@ -319,4 +282,13 @@ if __name__ == '__main__':
 [1] "Relatedness: Pearson correlation 0.790047753882667"
 [1] "Relatedness: Spearman correlation 0.763151377170929"
 [1] "Relatedness: MSE 0.382032158131169"
+'''
+
+# New features
+'''
+[1] "Processing working/foo.txt"
+[1] "No data for the entailment task: evaluation on relatedness only"
+[1] "Relatedness: Pearson correlation 0.869028349326605"
+[1] "Relatedness: Spearman correlation 0.852014822656915"
+[1] "Relatedness: MSE 0.250408557759324"
 '''

@@ -1,39 +1,24 @@
 #!/usr/bin/python
 
-import cPickle
-import shlex
-import random
-import numpy as np
+"""
+Feature extraction module for SemEval Shared Task 1.
+"""
+
+__author__ = 'Johannes Bjerva, and Rob van der Goot'
+__email__  = 'j.bjerva@rug.nl'
+
 import os
-import time
-from sys import argv, stdout
-from subprocess import check_output, call, Popen, PIPE
-from collections import defaultdict
-
 import requests
+import numpy as np
 
+from collections import defaultdict
 from scipy.spatial.distance import cosine
-
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import WordNetError
 
 import drs_complexity
 import load_semeval_data
 import config
-
-if config.RECALC_FEATURES:
-    # Load projection data
-    word_ids, projections = load_semeval_data.load_embeddings()
-
-    # Load the paraphrases data.
-    paraphrases = {}
-    for line in open(config.ppdb):
-        source = line.split('|')[1][1:-1]
-        target = line.split('|')[4][1:-1]
-        if source in paraphrases:
-            paraphrases[source].append(target)
-        else:
-            paraphrases[source] = [target]
 
 def get_replacements(t, h):
     """
@@ -68,7 +53,6 @@ def instance_overlap(id, sentence_a, sentence_b):
         return 0
     return 1 - (kth - kt) / kh
         
-
 def instance_overlap2(id, sentence_a, sentence_b):
     """
     Calculate the amount of overlap between the instances in the models of sentence_a (t) and sentence_b (h).
@@ -172,39 +156,24 @@ def word_overlap2(sentence_a, sentence_b):
         sentence_a[sentence_a.index(replacement[1])] = replacement[0]
     return score
   
-def johan_result(id):
-    for line in open('working/results.raw'):
-        words = line.split()
-        if words[0] == str(id):
-            result = words[-1]
-            if result == 'CONTRADICTION':
-                return -1#[1,0,0]
-            elif result == 'ENTAILMENT':
-                return 1#[0,1,0]
-            elif result == 'NEUTRAL':
-                return 0#[0,0,1]
-            else:
-                print 'fault'
-                return 0
-          
-def johan_entailment(id):
-    for line in open('working/results.raw'):
-        words = line.split()
-        if words[0] == str(id):
-            if words[len(words)-1] == 'ENTAILMENT':
-                 return 1
-            else:
-                 return 0  
+def get_entailment_judgements():
+    """
+    Get entailment judgements from Johan's system,
+    return as a dict mapping to a list with the appropriate index set to 1.
+    """
+    results = defaultdict(lambda: [0,0,0])
+    mapping = dict(zip(('CONTRADICTION','ENTAILMENT','NEUTRAL'), range(3)))
 
-def johan_neutral(id):
     for line in open('working/results.raw'):
         words = line.split()
-        if words[0] == str(id):
-            if words[len(words)-1] == 'NEUTRAL':
-                 return 1
-            else:
-                 return 0
+        sick_id = str(words[0])
+        result = words[-1]
 
+        # Set the index correspoinding to the judgement to 1
+        results[sick_id][mapping[result]] = 1
+
+    return results
+      
 def bigrams(sentence):
     """
     Since the skipgram model includes bigrams, look for them.
@@ -296,7 +265,6 @@ def synset_distance(sentence_a, sentence_b):
 
     return sum(distances)/float(len([1 for i in distances if i > 0.0]))
 
-
 def word_overlap(sentence_a, sentence_b):
     """
     Calculate the word overlap of two sentences.
@@ -313,7 +281,6 @@ def sentence_lengths(sentence_a, sentence_b):
     """
     return abs(len(sentence_a)-len(sentence_b))/float(min(len(sentence_a),len(sentence_b)))
 
-
 url = 'http://127.0.0.1:7777/raw/pipeline?format=xml'
 def sent_complexity(sentence):
     r = requests.post(url, data=' '.join(sentence))
@@ -327,3 +294,19 @@ def drs_complexity_difference(sentence_a, sentence_b):
     sent_b_complexity = sent_complexity(sentence_b)
 
     return abs(sent_a_complexity-sent_b_complexity)
+
+if config.RECALC_FEATURES:
+    # Load projection data
+    word_ids, projections = load_semeval_data.load_embeddings()
+
+    entailment_judgements = get_entailment_judgements()
+
+    # Load the paraphrases data.
+    paraphrases = {}
+    for line in open(config.ppdb):
+        source = line.split('|')[1][1:-1]
+        target = line.split('|')[4][1:-1]
+        if source in paraphrases:
+            paraphrases[source].append(target)
+        else:
+            paraphrases[source] = [target]

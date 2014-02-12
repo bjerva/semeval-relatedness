@@ -7,17 +7,18 @@ Data loading module for SemEval Shared Task 1.
 __author__ = 'Johannes Bjerva'
 __email__  = 'j.bjerva@rug.nl'
 
+import os
+import shlex
 import cPickle
 import numpy as np
+import requests
+
 from sys import stdout
 from collections import defaultdict
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import WordPunctTokenizer
 from nltk.tokenize.treebank import TreebankWordTokenizer
 from subprocess import check_output, call
-import os
-import shlex
-import requests
 
 import drs_complexity
 import config
@@ -191,7 +192,6 @@ def get_and_write_complexities(pair_id, sentence_a, sentence_b):
 def load_shared_sick_data(path):
     """
     Load shared sick data, parsed with boxer etc.
-    TODO: Extract relevant features
     """
     data = []
     prefix = len(path)

@@ -9,6 +9,7 @@ __email__  = 'j.bjerva@rug.nl'
 
 import pylab as pl
 import numpy as np
+import config
 
 def write_for_evaluation(outputs, sick_ids):
     """
