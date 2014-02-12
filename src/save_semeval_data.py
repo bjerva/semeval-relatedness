@@ -28,7 +28,6 @@ def write_for_evaluation(outputs, sick_ids):
                 elif data < 1.0:
                     data = 1.0
 
-
             out_f.write('{0}\t{1}\t{2}\n'.format(sick_ids[i], 'NA', data))
 
 

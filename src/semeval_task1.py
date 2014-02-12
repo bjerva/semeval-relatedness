@@ -38,6 +38,7 @@ from sklearn.ensemble import RandomForestRegressor
 import load_semeval_data
 import save_semeval_data
 import feature_extraction
+import error_diagnostic
 import config
 
 def regression(X_train, y_train, X_test, y_test):
@@ -175,6 +176,9 @@ def main():
 
     # Evaluate regressor
     save_semeval_data.write_for_evaluation(outputs, [line[0] for line in sick_test]) #Outputs and sick_ids
+
+    # Check errors
+    error_diagnostic.output_errors(outputs, trial_targets, [line[0] for line in sick_test], [line[1:3] for line in sick_test]) #Outputs and sick_ids
 
     # Plot deviations
     save_semeval_data.plot_deviation(outputs, trial_targets)
