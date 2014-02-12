@@ -3,9 +3,6 @@
 mkdir -p working
 SICK=working/sick
 ARFF=working/sim.arff
-GRAM=2
-PARFILE=working/ppdb.${GRAM}
-PARTEMP=working/par.tmp
 
 arrf()
 {
@@ -31,65 +28,78 @@ arrf()
     done
 }
 
+puncher()
+{
+    OPTIONS0="--tp vampire --mb paradox --mbbis mace --contradiction false --copula false --x --info --resolve true"
+    OPTIONS1="--tp vampire --mb paradox --mbbis mace --contradiction true  --copula true  --x --info --resolve true"
+    OPTIONS2="--tp vampire --mb paradox --mbbis mace --contradiction true  --copula false --x --info --resolve true"
+    bin/nc --dir $1 ${OPTIONS0}
+    if [ `cat $1/prediction.txt | grep word | wc -l` -gt 0 ]; then
+	bin/nc --dir $1 ${OPTIONS1}
+	if [ `cat $1/prediction.txt | grep input | wc -l` -gt 0 ]; then
+	    bin/nc --dir $1 ${OPTIONS2}
+	fi
+    fi
+    cat ${SICK}/${I}/t | bin/candc --models models/boxer --candc-printer boxer | bin/boxer --box --stdin --format xml --output ${SICK}/${I}/t.xml
+}
+
 run()
 {
     for I in `ls ${SICK}`; do
 	if [ -f ${SICK}/${I}/t ]; then
-	    OPTIONS1="--tp vampire --mb paradox --mbbis mace --contradiction --copula --x --info --resolve false"
-	    OPTIONS2="--tp vampire --mb paradox --mbbis mace --contradiction --copula --x --info --resolve"
-	    bin/nc --dir ${SICK}/${I} ${OPTIONS1}
+	    puncher ${SICK}/${I}
+	    cat ${SICK}/${I}/t | bin/candc --models models/boxer --candc-printer boxer | bin/boxer --box --stdin --format xml --output ${SICK}/${I}/t.xml
 	    if [ `cat ${SICK}/${I}/prediction.txt | grep word | wc -l` -gt 0 ]; then
-		bin/nc --dir ${SICK}/${I} ${OPTIONS2}
-#		# PLAN B (Paraphrase substitution)
-#		par ${I}
+		par ${I}
 	    fi
 	fi	
     done
 }
 
+init()
+{
+    for GRAM in 1 2 3 4; do
+	echo ${GRAM}
+	cat working/ppdb.${GRAM} | tr "\\" "x" \
+	    | tr -s " " \
+	    | sed "s/'/\\\'/g" \
+	    | sed "s/^| /p${GRAM}(['/" \
+	    | sed "s/ ||| /'],['/" \
+	    | sed "s/ |$/'])./" \
+	    | sed "s/ /','/g" > working/ppdb.${GRAM}.pl
+    done
+    swipl -c src/prolog/nutcracker/para.pl working/sick
+}
+
 par()
 {
     PARDIR=${SICK}/$1/PARAPHRASE
-    T=${SICK}/$1/t
-    H=${SICK}/$1/h
-    LEN=`cat ${T} | tr -s " " | tr " " "\n" | wc -l`
-    OPTIONS="--tp vampire --mb paradox --mbbis mace --contradiction --copula --x --info"
-    
-    mkdir -p ${PARDIR}
-    if [ ! -f ${PARDIR}/prediction.txt ]; then
-	echo "unknown" > ${PARDIR}/prediction.txt
-    fi
-    for J in `seq 1 $((1+LEN-GRAM))`; do
-	if [ `cat ${PARDIR}/prediction.txt | grep proof | wc -l` -eq 0 ]; then
-	    SRC=`cat ${T} | tr "A-Z" "a-z" | tr -s " " | cut -d" " -f${J}-$((J+GRAM-1))`
-	    grep "^| ${SRC} |" ${PARFILE} | sort -u > ${PARTEMP}
-	    NPAR=`cat ${PARTEMP} | grep . | wc -l`
-	    if [ ${NPAR} -gt 0 ]; then
-		for M in `seq 1 ${NPAR}`; do
-		    if [ `cat ${PARDIR}/prediction.txt | grep proof | wc -l` -eq 0 ]; then
-			TGT=`cat ${PARTEMP} | head -${M} | tail -1 | cut -d"|" -f5- | cut -d"|" -f1`
-			if [ ! `echo ${TGT} | grep "\." | wc -l` -gt 0 ]; then 
-			    if [ `cat ${T} | grep "${TGT}" | wc -l` -eq 0 ]; then 
-				MATCHES=`cat ${H} | grep "${TGT}" | wc -l`
-				if [ ${MATCHES} -gt 0 ]; then
-				    echo "$1: [${SRC}] -> [${TGT}]"
-				    cat ${T} | sed "s/${SRC}/${TGT}/" | tr -s " " > ${PARDIR}/t
-				    cat ${H} > ${PARDIR}/h
-				    bin/nc --dir ${PARDIR} ${OPTION}
-				fi
-			    fi
-			fi
-		    fi
-		done
-	    fi   
+    PARS=${SICK}/$1/paraphrases.txt
+    if [ -f ${PARS} ]; then
+	NPAR=`cat ${PARS} | grep . | wc -l`
+	if [ ${NPAR} -gt 0 ]; then
+	    mkdir -p ${PARDIR}
+	    echo "unknown (word)" > ${PARDIR}/prediction.txt
+	    cat ${SICK}/$1/h > ${PARDIR}/h
+	    for M in `seq 1 ${NPAR}`; do
+		echo $M
+		if [ `cat ${PARDIR}/prediction.txt | grep word | wc -l` -gt 0 ]; then
+		    cat ${PARS} | grep . | head -${M} | tail -1 > ${PARDIR}/t
+		    puncher ${PARDIR}
+		fi
+	    done
 	fi
-    done
+    fi
     if [ `cat ${PARDIR}/prediction.txt | grep proof | wc -l` -gt 0 ]; then
+	cp ${PARDIR}/prediction.txt ${SICK}/$1/prediction.txt
+	echo "FOUND ALTERNATIVE PROOF FOR $1"
+    fi
+    if [ `cat ${PARDIR}/prediction.txt | grep inconsistency | wc -l` -gt 0 ]; then
 	cp ${PARDIR}/prediction.txt ${SICK}/$1/prediction.txt
 	echo "FOUND ALTERNATIVE PROOF FOR $1"
     fi
 }
     
-
+#init
 run
 #arrf

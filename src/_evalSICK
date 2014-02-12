@@ -38,22 +38,22 @@ falsenegatives()
     echo "false negatives"
     for I in `ls ${OUTDIR}`; do
 	if [ -f ${OUTDIR}/${I}/prediction.txt ]; then
-#	    if [ `cat ${OUTDIR}/${I}/gold.rte | grep ENTAILMENT | wc -l` -gt 0 ]; then 
-#		if [ `cat ${OUTDIR}/${I}/prediction.txt | grep word | wc -l` -gt 0 ]; then 
-#	            echo -n "ENTAILMENT $I "; cat ${OUTDIR}/${I}/prediction.txt
-#		    echo -n "T: "; cat ${OUTDIR}/${I}/t
-#		    echo -n "H: "; cat ${OUTDIR}/${I}/h
-#		    echo "---------------------------------------"
-#		fi	
-#	    fi
-	    if [ `cat ${OUTDIR}/${I}/gold.rte | grep CONTRADICT | wc -l` -gt 0 ]; then 
+	    if [ `cat ${OUTDIR}/${I}/gold.rte | grep ENTAILMENT | wc -l` -gt 0 ]; then 
 		if [ `cat ${OUTDIR}/${I}/prediction.txt | grep word | wc -l` -gt 0 ]; then 
-	            echo -n "CONTRADICTION $I "; cat ${OUTDIR}/${I}/prediction.txt
+	            echo -n "ENTAILMENT $I "; cat ${OUTDIR}/${I}/prediction.txt
 		    echo -n "T: "; cat ${OUTDIR}/${I}/t
 		    echo -n "H: "; cat ${OUTDIR}/${I}/h
 		    echo "---------------------------------------"
 		fi	
 	    fi
+#	    if [ `cat ${OUTDIR}/${I}/gold.rte | grep CONTRADICT | wc -l` -gt 0 ]; then 
+#		if [ `cat ${OUTDIR}/${I}/prediction.txt | grep word | wc -l` -gt 0 ]; then 
+#	            echo -n "CONTRADICTION $I "; cat ${OUTDIR}/${I}/prediction.txt
+#		    echo -n "T: "; cat ${OUTDIR}/${I}/t
+#		    echo -n "H: "; cat ${OUTDIR}/${I}/h
+#		    echo "---------------------------------------"
+#		fi	
+#	    fi
 	fi
     done
 }
