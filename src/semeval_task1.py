@@ -48,7 +48,9 @@ def regression(X_train, y_train, X_test, y_test):
     # Random forest regressor w/ param optimization
     params = {'n_estimators':1000, 'criterion':'mse', 'max_depth':20, 'min_samples_split':1, #'estimators':400, depth:20
               'min_samples_leaf':1, 'max_features':2, 'bootstrap':True, 'oob_score':False,  #'max_features':'log2'
-              'n_jobs':32, 'random_state':0, 'verbose':1, 'min_density':None, 'max_leaf_nodes':None}
+              'n_jobs':32, 'random_state':0, 'verbose':0, 'min_density':None, 'max_leaf_nodes':None}
+    if config.DEBUG: params['verbose'] = 1
+
     regr = RandomForestRegressor(**params)
 
     # Train the model using the training sets

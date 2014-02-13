@@ -8,7 +8,7 @@ Parameters for semeval task 1
 DEBUG = True            # More informative print-outs
 USE_BIGRAMS = False     # Use bigrams for the DSM (Slightly worse results when this is switched on)
 USE_TRIGRAMS = True     # Use trigrams for the DSM
-RECALC_FEATURES = True  # Remember to switch this to True if features are changed
+RECALC_FEATURES = False  # Remember to switch this to True if features are changed
 WRITE_TO_MESH = True    # Write to mesh (ann)
 POST_PROCESS = False    # Post-process by making sure values are between 1.0 and 5.0
 USE_BOXER = True        # Use boxer features
