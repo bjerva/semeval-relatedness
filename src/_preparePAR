@@ -14,6 +14,7 @@ download()
     cat $1 | cut -d"|" -f3-8 | grep "^| [a-z]* |" | sort -u >> ppdb.1
     cat $1 | cut -d"|" -f3-8 | grep "^| [a-z]* [a-z]* |" | sort -u >> ppdb.2
     cat $1 | cut -d"|" -f3-8 | grep "^| [a-z]* [a-z]* [a-z]* |" | sort -u >> ppdb.3
+    cat $1 | cut -d"|" -f3-8 | grep "^| [a-z]* [a-z]* [a-z]* [a-z]* |" | sort -u >> ppdb.4
     rm -f $1
     cd ..
 }

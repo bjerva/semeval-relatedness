@@ -108,9 +108,9 @@ arffrte()
 
 #arffrte
 
-arffsim ENTAILMENT
-arffsim CONTRADICTION
-arffsim NEUTRAL
+#arffsim ENTAILMENT
+#arffsim CONTRADICTION
+#arffsim NEUTRAL
 
 createrun
 R --no-save --slave --vanilla --args ${RUN} working/SICK_all.txt < working/sick_evaluation.R 
