@@ -66,12 +66,12 @@ def instance_overlap2(id, sentence_a, sentence_b):
         kth = get_number_of_instances(kthFile)
         kt = get_number_of_instances(os.path.join(config.shared_sick, str(id), 'kt.mod'))
         kh = get_number_of_instances(os.path.join(config.shared_sick, str(id), 'kh.mod'))
-        if kh == 0:
+        if kh == 0 or kt == 0 or kth == 0:
             score = 0
         else: 
             score = 1 - (kth - kt) / kh
 
-    for counter in range(1,8):
+    for counter in range(1,63):
         newfolder = os.path.join(config.shared_sick2,'{0}.{1}'.format(str(id), counter))
         if os.path.isfile(os.path.join(newfolder, 'kth.mod')):
             kth = get_number_of_instances(os.path.join(newfolder, 'kth.mod'))
@@ -120,12 +120,12 @@ def relation_overlap2(id, sentence_a, sentence_b):
         kth = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kth.mod'))
         kt = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kt.mod'))
         kh = get_number_of_relations(os.path.join(config.shared_sick, str(id), 'kh.mod'))
-        if kh == 0:
+        if kh == 0 or kt == 0 or kth == 0:
             score = 0
         else:
             score = 1 - (kth -kt) / kh
     
-    for counter in range(1,8):
+    for counter in range(1,63):
         newfolder = os.path.join(config.shared_sick2,'{0}.{1}'.format(str(id), counter))
         if os.path.isfile(os.path.join(newfolder, 'kth.mod')):
             kth = get_number_of_relations(os.path.join(newfolder, 'kth.mod'))

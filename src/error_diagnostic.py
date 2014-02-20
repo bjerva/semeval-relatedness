@@ -19,7 +19,7 @@ def output_errors(outputs, gold, sick_ids, sick_sentences):
             data = line
             corr = gold[i]
             diff = abs(data-corr)
-            if diff > 1.0:
+            if diff > 0.75:
                 errs.append((sick_ids[i], round(diff, 1), round(data, 1), corr, ' '.join(sick_sentences[i][0]), ' '.join(sick_sentences[i][1])))
 
         errs.sort(key=lambda x:-x[1])

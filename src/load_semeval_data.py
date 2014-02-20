@@ -37,24 +37,29 @@ def load_embeddings():
     """
     Load embeddings either from pre-processed binary, or fallback to txt if non-existant
     """
-    vector_file = 'GoogleNews-vectors-negative300.txt'#argv[1]
+    num = config.vector_num
+    if num == 1:
+        vector_file = 'GoogleNews-vectors-negative300.txt'
+    elif num == 2:
+        vector_file = 'wiki_giga_vectors.txt'
+    elif num == 3:
+        vector_file = 'vectors_en.txt'
 
     try:
-        if config.DEBUG: stdout.write('loading embeddings from archives.. ')
+        if config.DEBUG: stdout.write('loading embedding {0} from archives.. '.format(num))
 
-        with open('google_news_ids.pickle', 'rb') as in_f:
+        with open('google_news_ids{0}.pickle'.format(num), 'rb') as in_f:
             word_ids = cPickle.load(in_f)     
-        with open('google_news_np.pickle', 'rb') as in_f:
+        with open('google_news_np{0}.pickle'.format(num), 'rb') as in_f:
             projections = np.load(in_f)
 
     except IOError:
         if config.DEBUG: stdout.write(' error - processing txt-file instead (~15 mins)..')  
 
-        
         projections, word_ids = load_word2vec(vector_file)
-        with open('google_news_ids.pickle', 'wb') as out_f:
+        with open('google_news_ids{0}.pickle'.format(num), 'wb') as out_f:
             cPickle.dump(dict(word_ids), out_f, -1)
-        with open('google_news_np.pickle', 'wb') as out_f:
+        with open('google_news_np{0}.pickle'.format(num), 'wb') as out_f:
             np.save(out_f, projections)
     
     if config.DEBUG: stdout.write(' done!\n')
@@ -67,20 +72,29 @@ def load_word2vec(f_name):
     This takes a  while.
     """
     if config.DEBUG: stdout.write('\ngetting vocab size: ')
-    dimensions = 300 #int(f_name.lstrip('word_projections-')[:-4])
-    vocab_size = int(check_output(shlex.split('wc -l {0}'.format(wvec_path+f_name))).split()[0])
+    vocab_size = int(check_output(shlex.split('wc -l {0}'.format(config.wvec_path+f_name))).split()[0])
     if config.DEBUG: stdout.write(str(vocab_size)+'\n')
 
-    # NP matrix for word projections
-    word_projections = np.zeros( (vocab_size, dimensions), dtype=np.float64)
     word_ids = defaultdict(lambda:len(word_ids))
 
     if config.DEBUG: print 'filling rep matrix'
     with open(config.wvec_path+f_name, 'r') as in_f:
+        # First line is <s\>, i.e. unnecessary for our purposes
+        # Use to get dimensionality and throw away.
+        first = in_f.readline()
+        dimensions = len(first.split()[1:])
+
+        # NP matrix for word projections
+        word_projections = np.zeros( (vocab_size, dimensions), dtype=np.float64)
+
         for line in in_f:
             fields = line.split()
-            word_id = word_ids[fields[0].lower()]
-            word_projections[word_id] = [float(i) for i in fields[1:]]
+            try:
+                word_id = word_ids[fields[0].lower()]
+                word_projections[word_id] = [float(i) for i in fields[1:]]
+            except ValueError:
+                # Error with embedding file - do nothing for now.
+                pass
 
     return word_projections, word_ids
 
