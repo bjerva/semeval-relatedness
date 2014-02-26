@@ -44,7 +44,6 @@ def sentence_distance(sentence_a, sentence_b):
     """
     Return the cosine distance between two sentences
     """
-    
     sent_a = np.sum([projections[word_ids[word]] 
         if word in word_ids else [0] 
             for word in sentence_a+bigrams(sentence_a)+trigrams(sentence_a)], axis=0)
@@ -65,36 +64,21 @@ def word_overlap(sentence_a, sentence_b):
 
     return score
 
-def word_overlap2(sentence_a, sentence_b):
+def word_overlap2(t_raw, h_raw, t_tok, h_tok, replacements):
     """
     Calculate the word overlap of two sentences and tries to use paraphrases to get a higher score
     """
-    
-    a_set = set(word for word in sentence_a) - config.stop_list
-    b_set = set(word for word in sentence_b) - config.stop_list
-    score = len(a_set&b_set)/float(len(a_set|b_set))
+    t_set = set(word for word in t_raw) - config.stop_list
+    h_set = set(word for word in h_raw) - config.stop_list
+    score = len(t_set & h_set) / float(len(t_set|h_set))
 
-    for replacement in get_replacements(sentence_a, sentence_b):
-        sentence_a[sentence_a.index(replacement[0])] = replacement[1]
-        a_set = set(word for word in sentence_a) - config.stop_list
-        b_set = set(word for word in sentence_b) - config.stop_list
-        newScore = len(a_set&b_set)/float(len(a_set|b_set))
+    for replacement in replacements:
+        t_set = set(word for word in replacement[1]) - config.stop_list # replacement[1] = t_raw
+        h_set = set(word for word in replacement[2]) - config.stop_list # replacement[2] = h_raw
+        newScore = len(t_set & h_set) / float(len(t_set|h_set))
         if newScore > score:
             score = newScore
-        sentence_a[sentence_a.index(replacement[1])] = replacement[0]
     return score
-
-def get_replacements(t, h):
-    """
-    Return all posible replacements for sentence t to become more like sentence h.
-    """
-    replacements = []
-    for wordT in t:
-         if wordT in paraphrases:
-             for replacementWord in paraphrases[wordT]:
-                 if replacementWord in h and replacementWord not in t and wordT not in h:
-                     replacements.append([wordT, replacementWord])
-    return replacements
 
 def get_number_of_instances(model):
     if model is None:
@@ -134,7 +118,7 @@ def get_number_of_relations(model):
         if line.find('f(2') >= 0:
             counter += 1
     return float(counter)
-    # ALS MEERDERE DEZELFDE RELATIE HEBBEN TELT DIT ALS 1!!!!
+    #TODO  when multiples of same relation, the result is still 1
     
 def get_relation_overlap(kt_mod, kh_mod, kth_mod):
     kt = get_number_of_relations(kt_mod)
@@ -153,7 +137,6 @@ def relation_overlap(kt_mod, kh_mod, kth_mod, replacements):
     for replacement in replacements:
         new_score = get_relation_overlap(replacement[5], replacement[6], replacement[7])
         if new_score > score:
-            print(score, new_score)
             score = new_score
     return score
 
@@ -198,6 +181,7 @@ def synset_overlap(sentence_a, sentence_b):
     score = len(a_set&b_set)/float(len(a_set|b_set))
 
     return score
+#TODO use replacements?
 
 def synset_distance(sentence_a, sentence_b):
     def distance(word, sentence_b):
@@ -220,6 +204,7 @@ def synset_distance(sentence_a, sentence_b):
     distances = [distance(word, sentence_b) for word in sentence_a]
 
     return sum(distances)/float(len([1 for i in distances if i > 0.0]))
+#TODO use replacements?
 
 def sentence_lengths(sentence_a, sentence_b):
     """
@@ -242,32 +227,31 @@ def drs_complexity_difference(sentence_a, sentence_b):
     return abs(sent_a_complexity-sent_b_complexity)
 
 
-def get_shared_features(pair_id, sentence_a, sentence_b):
-    root = './working/sick/'+pair_id
-    data = ()
-    with open(root+'/prediction.txt', 'r') as in_f:
-        line = in_f.readline().lower().strip()
-        data = data + (prediction_ids[line],)
+# Used to encode the entailment judgements numerically
+prediction_ids = defaultdict(lambda:len(prediction_ids))
+prover_ids = defaultdict(lambda:len(prover_ids))
 
-    with open(root+'/modsizedif.txt', 'r') as in_f:
-        lines = in_f.readlines()
-        prover  = prover_ids[lines[0].split()[0][:-1]] # First field of line without trailing '.'
-        dom_nov = float(lines[1].split()[0][:-1]) 
-        rel_nov = float(lines[2].split()[0][:-1])
-        wrd_nov = float(lines[3].split()[0][:-1])
-        mod_nov = float(lines[4].split()[0][:-1])
-        word_overlap = float(lines[5].split()[0][:-1])
-
-        data = data + (prover, dom_nov, rel_nov, wrd_nov, mod_nov, word_overlap)
-
-    with open(root+'/complexities.txt', 'r') as in_f:
-        line = in_f.readlines()
-        data = data + (float(line[0]), float(line[1]))
+def get_johans_features(modsizedif, prediction):
+    data = []
+   
+    data.append(prover_ids[modsizedif[0].split()[0][:-1]]) # prover output
+    data.append(float(modsizedif[1].split()[0][:-1]))      # domain novelty
+    data.append(float(modsizedif[2].split()[0][:-1]))      # relation novelty
+    data.append(float(modsizedif[3].split()[0][:-1]))      # wordnet novelty
+    data.append(float(modsizedif[4].split()[0][:-1]))      # model novelty
+    data.append(float(modsizedif[5].split()[0][:-1]))      # word overlap
+    
+    line = prediction[0].lower().strip() 
+    data.append(prediction_ids[line])                      # prediction.txt
 
     return data
+#TODO, also use sick2?
 
 if config.RECALC_FEATURES:
     # Load projection data
     word_ids, projections = load_semeval_data.load_embeddings()
 
     entailment_judgements = get_entailment_judgements()
+    
+#TODO, johans scores los
+#get_entailment_judgements doet ie het?

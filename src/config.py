@@ -11,8 +11,8 @@ USE_TRIGRAMS = False     # Use trigrams for the DSM
 RECALC_FEATURES = True  # Remember to switch this to True if features are changed
 WRITE_TO_MESH = False    # Write to mesh (ann)
 POST_PROCESS = False    # Post-process by making sure values are between 1.0 and 5.0
-USE_BOXER = True        # Use boxer features
-WRITE_COMPLEXITY = True # Write DRS complexity
+USE_BOXER = False        # Use boxer features
+WRITE_COMPLEXITY = False # Write DRS complexity
 
 # Paths
 shared_sick = './working/sick/'    # Directory containing sick files

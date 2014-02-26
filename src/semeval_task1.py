@@ -69,28 +69,22 @@ def regression(X_train, y_train, X_test, y_test):
 
 # Array containing the names of all features, for plotting purposes
 feature_names = np.array([
-    #'CDSM', 
-    'WORDS', 
-    #'SYN_OVER', 
-    #'SYN_DIST', 
-    #'LENGTH',
-    #'GOLD_ENT',
-    #'BOXER',
-    #'PROVER',
-    #'DOM_NV', 
-    #'REL_NV', 
-    #'WRD_NV', 
-    #'MOD_NV',
-    #'WORDS2',
+    'CDSM', 
+    'WORDS2', 
+    'WORDS3',
+    'SYN_OVER', 
+    'SYN_DIST', 
+    'LENGTH',
+    'PROVER',
+    'DOM_NV', 
+    'REL_NV', 
+    'WRD_NV', 
+    'MOD_NV',
+    'WORDS1',
     #'DRS_COMPLEXITY',
     'INSTANCE',
-    #'RELATION',
-    #'RELATION2',
-    #'WORDS3',
-    #'joh_c',
-    #'joh_e',
-    #'joh_n',
-    #'dummy'
+    'RELATION',
+    'dummy'
     ], dtype='|S7')
 def get_features(line):
     """
@@ -98,25 +92,25 @@ def get_features(line):
     Comment out / add lines to disable / add features.
     Add the name to the feature_names array.
     """
+    johans_features = feature_extraction.get_johans_features(line[10],line[11])
     features = [
-        #feature_extraction.sentence_distance(line[1], line[2]) # Cosine distance between sentences
+        feature_extraction.sentence_distance(line[1], line[2]) # Cosine distance between sentences
         feature_extraction.word_overlap(line[1], line[2]),      # Proportion of word overlap
-        feature_extraction.word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
-        #feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
-        #feature_extraction.synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
-        #feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length
-        #line[4],                             # Gold standard entailment judgement (inflated)
-        #line[5],                             # Boxer prediction
-        #line[6],                             # Prover output
-        #line[7],                             # Domain novelty                  
-        #line[8],                             # Relation novelty
-        #line[9],                             # Wordnet novelty
-        #line[10],                            # Model novelty
-        #line[11],                            # Word Overlap
-        #abs(line[12]-line[13]),              # DRS Complexity
+        feature_extraction.word_overlap2(line[1], line[2], line[3], line[4], line[12]),               # Proportion of word overlap with the help of paraphrases
+        feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
+        feature_extraction.synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
+        feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length    
+        johans_features[0],                             # prover output
+        johans_features[1],                             # domain novelty
+        johans_features[2],                             # relation novelty
+        johans_features[3],                             # wordnet novelty                
+        johans_features[4],                             # model novelty
+        johans_features[5],                             # word overlap
+        johans_features[6],                              # prediction.txt
+        #abs(line[8], line[9]),              # DRS Complexity
 
-        feature_extraction.instance_overlap(line[5], line[6], line[7], line[12])  # Instances overlap with the help of paraphrases
-        feature_extraction.relation_overlap(line[5], line[6], line[7], line[12]),  # Relation overlap in models with the help of paraphrases
+        feature_extraction.instance_overlap(line[5], line[6], line[7], line[12]),  # Instances overlap with the help of paraphrases
+        feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])  # Relation overlap in models with the help of paraphrases
             ]
 
     #features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
