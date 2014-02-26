@@ -112,76 +112,71 @@ def load_sick_data():
 
     except IOError:
         if config.DEBUG: stdout.write(' error - loading from txt-files..')
-    
-        sick_data =  load_sick_data_from_txt(shared_sick+sick_train)
-        sick_data.extend( load_sick_data_from_txt(shared_sick+sick_trial) )
+        
+        sick_data = []
+        for id in os.listdir(config.shared_sick):
+            sick_data.append(load_sick_data_from_folder(id))
+
         with open('sick.pickle', 'wb') as out_f:
             cPickle.dump(sick_data, out_f, -1)
     
-    if config.DEBUG: stdout.write(' done!\n')
+    if config.DEBUG:
+        stdout.write(' done!\n')
 
     return sick_data
 
-def load_sick_data_from_txt(f_name):
-    """
-    Load data from the sick data set.
-    Lemmatize all words using NLTK
-    """
-    data = []
-    with open(f_name, 'r') as in_f:
-        header = in_f.readline()
-        for line in in_f:
-            fields = line.split('\t')
-            pair_id = int(fields[0].strip())
+    
 
-            # Tokenizing gives a better Spearman correlation, but worse Pearson...
-            #sentence_a = [wnl.lemmatize(word) for word in twt.tokenize(fields[1].strip().lower())]
-            #sentence_b = [wnl.lemmatize(word) for word in twt.tokenize(fields[2].strip().lower())]
-            raw_sentence_a = [word for word in fields[1].strip().split()]
-            raw_sentence_b = [word for word in fields[2].strip().split()]
+def read_txt_file(path):
+    if os.path.isfile(path):
+        return open(path).read().split()
+    else:
+        # the file at path does not exist
+        return None
 
-            sentence_a = [wnl.lemmatize(word.lower()) for word in raw_sentence_a]
-            sentence_b = [wnl.lemmatize(word.lower()) for word in raw_sentence_b]
-            
-            relatedness = float(fields[3].strip())
-            judgement = fields[4].strip()
+def load_sick2_data_from_folder(id_folder):
+    id_data = []
+    id_data.append(None)                                                        #data[0] gold.sim is not available/needed here
+    id_data.append(read_txt_file(os.path.join(id_folder,'t')))                  #data[1]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h')))                  #data[2]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t.tok')))              #data[3]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h.tok')))              #data[4]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod')))             #data[5]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod')))             #data[6]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod')))            #data[7]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t.xml')))              #data[8]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h.xml')))              #data[9]
+    id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt')))     #data[10]
+    id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt')))     #data[11]
+    
+    return id_data
 
-            document_data = (pair_id, sentence_a, sentence_b, relatedness, judgement_ids[judgement])
+def get_sick2_data(id):
+    sick2_data = []
+    for folder in os.listdir(config.shared_sick2):
+        if str(folder).startswith("{0}.".format(id)):
+            sick2_data.append(load_sick2_data_from_folder(os.path.join(config.shared_sick2, folder)))
+    return sick2_data
 
-            if USE_BOXER:
-                boxer_features = get_shared_features(str(pair_id), raw_sentence_a, raw_sentence_b)
-                document_data = document_data + boxer_features
+def load_sick_data_from_folder(id):
+    id_folder = os.path.join(config.shared_sick,str(id))
+    id_data = []
+    id_data.append(read_txt_file(os.path.join(id_folder,'gold.sim'))) #data[0]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t')))                  #data[1]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h')))                  #data[2]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t.tok')))              #data[3]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h.tok')))              #data[4]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod')))             #data[5]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod')))             #data[6]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod')))            #data[7]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t.xml')))              #data[8]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h.xml')))              #data[9]
+    id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt')))     #data[10]
+    id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt')))     #data[11]
+    id_data.append(get_sick2_data(id))                                          #data[12]
+    
+    return id_data
 
-            data.append(document_data)
-
-    return data
-
-def get_shared_features(pair_id, sentence_a, sentence_b):
-    root = './working/sick/'+pair_id
-    data = ()
-    with open(root+'/prediction.txt', 'r') as in_f:
-        line = in_f.readline().lower().strip()
-        data = data + (prediction_ids[line],)
-
-    with open(root+'/modsizedif.txt', 'r') as in_f:
-        lines = in_f.readlines()
-        prover  = prover_ids[lines[0].split()[0][:-1]] # First field of line without trailing '.'
-        dom_nov = float(lines[1].split()[0][:-1]) 
-        rel_nov = float(lines[2].split()[0][:-1])
-        wrd_nov = float(lines[3].split()[0][:-1])
-        mod_nov = float(lines[4].split()[0][:-1])
-        word_overlap = float(lines[5].split()[0][:-1])
-
-        data = data + (prover, dom_nov, rel_nov, wrd_nov, mod_nov, word_overlap)
-
-    try: 
-        with open(root+'/complexities.txt', 'r') as in_f:
-            line = in_f.readlines()
-            data = data + (float(line[0]), float(line[1]))
-    except IOError:
-        data = data + get_and_write_complexities(pair_id, sentence_a, sentence_b)
-
-    return data
 
 url = 'http://127.0.0.1:7777/raw/pipeline?format=xml'
 def get_and_write_complexities(pair_id, sentence_a, sentence_b):
@@ -198,37 +193,3 @@ def get_and_write_complexities(pair_id, sentence_a, sentence_b):
 
     print pair_id, complexity_a, complexity_b
     return (complexity_a, complexity_b)
-
-def load_shared_sick_data(path):
-    """
-    Load shared sick data, parsed with boxer etc.
-    """
-    data = []
-    prefix = len(path)
-    err, corr = 0,0
-    for root, dirs, files in os.walk(path):
-        if len(files) > 5:
-            try:
-                sick_id = int(root[prefix:])
-                with open(root+'/t.tok', 'r') as in_f:
-                    sentence_a = [wnl.lemmatize(word) for word in in_f.readline().lower().split()]
-
-                with open(root+'/h.tok', 'r') as in_f:
-                    sentence_b = [wnl.lemmatize(word) for word in in_f.readline().lower().split()]
-
-                with open(root+'/gold.sim', 'r') as in_f:
-                    relatedness = float(in_f.readline().strip())
-
-                with open(root+'/gold.rte', 'r') as in_f:
-                    judgement = in_f.readline().strip()
-
-
-                data.append((sick_id, sentence_a, sentence_b, relatedness, judgement_ids[judgement]))
-                corr += 1
-            except IOError:
-                err += 1
-
-    print "done", corr
-    print "fail", err
-
-    return data

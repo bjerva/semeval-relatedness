@@ -69,29 +69,28 @@ def regression(X_train, y_train, X_test, y_test):
 
 # Array containing the names of all features, for plotting purposes
 feature_names = np.array([
-    'CDSM', 
-    #'WORDS', 
-    'SYN_OVER', 
+    #'CDSM', 
+    'WORDS', 
+    #'SYN_OVER', 
     #'SYN_DIST', 
-    'LENGTH',
+    #'LENGTH',
     #'GOLD_ENT',
-    'BOXER',
-    'PROVER',
-    'DOM_NV', 
-    'REL_NV', 
-    'WRD_NV', 
-    'MOD_NV',
+    #'BOXER',
+    #'PROVER',
+    #'DOM_NV', 
+    #'REL_NV', 
+    #'WRD_NV', 
+    #'MOD_NV',
     #'WORDS2',
-    'DRS_COMPLEXITY',
-    #'INSTANCE',
-    'INSTANCE2',
+    #'DRS_COMPLEXITY',
+    'INSTANCE',
     #'RELATION',
-    'RELATION2',
-    'WORDS3',
-    'joh_c',
-    'joh_e',
-    'joh_n',
-    'dummy'
+    #'RELATION2',
+    #'WORDS3',
+    #'joh_c',
+    #'joh_e',
+    #'joh_n',
+    #'dummy'
     ], dtype='|S7')
 def get_features(line):
     """
@@ -100,29 +99,27 @@ def get_features(line):
     Add the name to the feature_names array.
     """
     features = [
-        feature_extraction.sentence_distance(line[1], line[2]), # Cosine distance between sentences
-        #word_overlap(line[1], line[2]),      # Proportion of word overlap
-        feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
-        #synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
-        feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length
-        #line[4],                             # Gold standard entailment judgement (inflated)
-        line[5],                             # Boxer prediction
-        line[6],                             # Prover output
-        line[7],                             # Domain novelty                  
-        line[8],                             # Relation novelty
-        line[9],                             # Wordnet novelty
-        line[10],                            # Model novelty
-        #line[11],                            # Word Overlap
-        abs(line[12]-line[13]),              # DRS Complexity
-
-        #instance_overlap(line[0], line[1], line[2]),   # Instances overlap in models
-        feature_extraction.instance_overlap2(line[0], line[1], line[2]),  # Instances overlap with the help of paraphrases
-        #relation_overlap(line[0], line[1], line[2]),   # Relation overlap in models
-        feature_extraction.relation_overlap2(line[0], line[1], line[2]),  # Relation overlap in models with the help of paraphrases
+        #feature_extraction.sentence_distance(line[1], line[2]) # Cosine distance between sentences
+        feature_extraction.word_overlap(line[1], line[2]),      # Proportion of word overlap
         feature_extraction.word_overlap2(line[1], line[2]),               # Proportion of word overlap with the help of paraphrases
+        #feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
+        #feature_extraction.synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
+        #feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length
+        #line[4],                             # Gold standard entailment judgement (inflated)
+        #line[5],                             # Boxer prediction
+        #line[6],                             # Prover output
+        #line[7],                             # Domain novelty                  
+        #line[8],                             # Relation novelty
+        #line[9],                             # Wordnet novelty
+        #line[10],                            # Model novelty
+        #line[11],                            # Word Overlap
+        #abs(line[12]-line[13]),              # DRS Complexity
+
+        feature_extraction.instance_overlap(line[5], line[6], line[7], line[12])  # Instances overlap with the help of paraphrases
+        feature_extraction.relation_overlap(line[5], line[6], line[7], line[12]),  # Relation overlap in models with the help of paraphrases
             ]
 
-    features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
+    #features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
 
     return features
 
@@ -135,12 +132,12 @@ def retrieve_features(sick_train, sick_test):
         # Extract training features and targets
         print 'Feature extraction (train)...'
         train_sources = np.array([get_features(line) for line in sick_train])
-        train_targets = np.array([line[3] for line in sick_train])
+        train_targets = np.array([line[0] for line in sick_train])
 
         # Extract trial features and targets
         print 'Feature extraction (trial)...'
         trial_sources = np.array([get_features(line) for line in sick_test])
-        trial_targets = np.array([line[3] for line in sick_test])
+        trial_targets = np.array([line[0] for line in sick_test])
 
         # Store to pickle for future reference
         with open('features_np.pickle', 'wb') as out_f:
