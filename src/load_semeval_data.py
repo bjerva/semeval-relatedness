@@ -12,6 +12,7 @@ import shlex
 import cPickle
 import numpy as np
 import requests
+import xml.etree.ElementTree as et
 
 from sys import stdout
 from collections import defaultdict
@@ -128,30 +129,49 @@ def load_sick_data():
     
 
 def read_txt_file(path, delimeter):
+    """
+    Convert a txt file to a list using a delimeter
+    """
     if os.path.isfile(path):
         return open(path).read().split(delimeter)
     else:
         # the file at path does not exist
         return None
+    
+def read_xml_file(path):
+    """
+    Read and parse an xml file
+    """
+    if os.path.isfile(path):
+        return et.parse(path)
+    else:
+        # the file at path does not exist
+        return None
 
 def load_sick2_data_from_folder(id_folder):
+    """
+    Load the data from the sick2 folder
+    """
     id_data = []
-    id_data.append(None)                                                        #data[0] gold.sim is not available/needed here
+    id_data.append(None)                                                             #data[0] gold.sim is not available/needed here
     id_data.append(read_txt_file(os.path.join(id_folder,'t'), ' '))                  #data[1]
     id_data.append(read_txt_file(os.path.join(id_folder,'h'), ' '))                  #data[2]
     id_data.append(read_txt_file(os.path.join(id_folder,'t.tok'), ' '))              #data[3]
     id_data.append(read_txt_file(os.path.join(id_folder,'h.tok'), ' '))              #data[4]
-    id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod'), '\n'))             #data[5]
-    id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod'), '\n'))             #data[6]
-    id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod'), '\n'))            #data[7]
-    id_data.append(read_txt_file(os.path.join(id_folder,'t.xml'), '\n'))              #data[8]
-    id_data.append(read_txt_file(os.path.join(id_folder,'h.xml'), '\n'))              #data[9]
-    id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))     #data[10]
-    id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))     #data[11]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod'), '\n'))            #data[5]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod'), '\n'))            #data[6]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod'), '\n'))           #data[7]
+    id_data.append(read_xml_file(os.path.join(id_folder,'t.xml')))                   #data[8]
+    id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[9]
+    id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[10]
+    id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[11]
     
     return id_data
 
 def get_sick2_data(id):
+    """
+    Look for all the alternative sick folder (using paraphrases) and get the candc data from these folders
+    """
     sick2_data = []
     for folder in os.listdir(config.shared_sick2):
         if str(folder).startswith("{0}.".format(id)):
@@ -159,21 +179,24 @@ def get_sick2_data(id):
     return sick2_data
 
 def load_sick_data_from_folder(id):
+    """
+    Load the data from the sick folder
+    """
     id_folder = os.path.join(config.shared_sick,str(id))
     id_data = []
-    id_data.append(read_txt_file(os.path.join(id_folder,'gold.sim'), '\n')) #data[0]
+    id_data.append(read_txt_file(os.path.join(id_folder,'gold.sim'), '\n'))          #data[0]
     id_data.append(read_txt_file(os.path.join(id_folder,'t'), ' '))                  #data[1]
     id_data.append(read_txt_file(os.path.join(id_folder,'h'), ' '))                  #data[2]
     id_data.append(read_txt_file(os.path.join(id_folder,'t.tok'), ' '))              #data[3]
     id_data.append(read_txt_file(os.path.join(id_folder,'h.tok'), ' '))              #data[4]
-    id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod'), '\n'))             #data[5]
-    id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod'), '\n'))             #data[6]
-    id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod'), '\n'))            #data[7]
-    id_data.append(read_txt_file(os.path.join(id_folder,'t.xml'), '\n'))              #data[8]
-    id_data.append(read_txt_file(os.path.join(id_folder,'h.xml'), '\n'))              #data[9]
-    id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))     #data[10]
-    id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))     #data[11]
-    id_data.append(get_sick2_data(id))                                          #data[12]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod'), '\n'))            #data[5]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod'), '\n'))            #data[6]
+    id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod'), '\n'))           #data[7]
+    id_data.append(read_xml_file(os.path.join(id_folder,'t.xml')))                   #data[8]
+    id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[9]
+    id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[10]
+    id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[11]
+    id_data.append(get_sick2_data(id))                                               #data[12]
     
     return id_data
 

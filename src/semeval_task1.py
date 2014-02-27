@@ -69,21 +69,28 @@ def regression(X_train, y_train, X_test, y_test):
 
 # Array containing the names of all features, for plotting purposes
 feature_names = np.array([
-    'CDSM', 
-    'WORDS2', 
-    'WORDS3',
-    'SYN_OVER', 
-    'SYN_DIST', 
-    'LENGTH',
-    'PROVER',
-    'DOM_NV', 
-    'REL_NV', 
-    'WRD_NV', 
-    'MOD_NV',
-    'WORDS1',
-    #'DRS_COMPLEXITY',
-    'INSTANCE',
-    'RELATION',
+    #'WORDS2', 
+    #'WORDS3', 
+    #'SEN_LEN',
+    #'SEN_DIS', 
+    #'SYN_OV', 
+    #'SYN_DIS',
+    #'INS_OV',
+    #'REL_OV', 
+    'PAT_OV',
+    #'AG_OV',
+    #'EV_OV',
+    #'PROV',
+    #'DOM_NV', 
+    #'REL_NV', 
+    #'WN_NV',
+    #'MOD_NV',
+    #'WORDS1',
+    #'PRED',
+    #'ENT_A',
+    #'ENT_B',
+    #'ENT_C',
+    #'DRS',
     'dummy'
     ], dtype='|S7')
 def get_features(line):
@@ -95,23 +102,29 @@ def get_features(line):
     johans_features = feature_extraction.get_johans_features(line[10],line[11])
     entailment_judgements = feature_extraction.get_entailment_judgements()
     features = [
-        #feature_extraction.word_overlap(line[1], line[2]),      # Proportion of word overlap
-        #feature_extraction.word_overlap2(line[1], line[2], line[3], line[4], line[12]),               # Proportion of word overlap with the help of paraphrases
+        #feature_extraction.word_overlap2(line[1], line[2]),      # Proportion of word overlap
+        #feature_extraction.word_overlap3(line[1], line[2], line[3], line[4], line[12]),               # Proportion of word overlap with the help of paraphrases
         #feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length    
         #feature_extraction.sentence_distance(line[1], line[2]) # Cosine distance between sentences
         #feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
         #feature_extraction.synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
         #feature_extraction.instance_overlap(line[5], line[6], line[7], line[12]),  # Instances overlap with the help of paraphrases
-        #feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])  # Relation overlap in models with the help of paraphrases        johans_features[0],                             # prover output
+        #feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])  # Relation overlap in models with the help of paraphrases
+        
+        feature_extraction.drs_patient_overlap(line[8], line[9])        # Patient overlap in the boxer model
+        #feature_extraction.drs_agent_overlap(line[8], line[9]),        # Agent overlap in the boxer model
+        #feature_extraction.drs_event_overlap(line[8], line[9]),        # Event overlap in the boxer model
+        
+        #johans_features[0],                             # prover output
         #johans_features[1],                             # domain novelty
         #johans_features[2],                             # relation novelty
         #johans_features[3],                             # wordnet novelty                
         #johans_features[4],                             # model novelty
         #johans_features[5],                             # word overlap
         #johans_features[6],                              # prediction.txt
-        entailment_judgements[0],
-        entailment_judgements[1],
-        entailment_judgements[2]
+        #entailment_judgements[0],
+        #entailment_judgements[1],
+        #entailment_judgements[2]
         #abs(line[8], line[9]),              # DRS Complexity
         #TODO needs to be rewritten for using the xml files
         

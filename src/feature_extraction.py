@@ -132,12 +132,18 @@ def synset_distance(sentence_a, sentence_b):
 #TODO use replacements?
 
 def get_number_of_instances(model):
+    """
+    Return the number of instances in the model
+    """
     if model is None:
         return 0
     else:
         return float(len(model[0].split('d'))-2)
 
 def get_instance_overlap(kt_mod, kh_mod, kth_mod):
+    """
+    Calculate the amount of overlap using the number of instance overlap
+    """
     kt = get_number_of_instances(kt_mod)
     kh = get_number_of_instances(kh_mod)
     kth = get_number_of_instances(kth_mod)
@@ -172,6 +178,9 @@ def get_number_of_relations(model):
     #TODO  when multiples of same relation, the result is still 1
     
 def get_relation_overlap(kt_mod, kh_mod, kth_mod):
+    """
+    Calculate the amount of overlap using the number of relations
+    """
     kt = get_number_of_relations(kt_mod)
     kh = get_number_of_relations(kh_mod)
     kth = get_number_of_relations(kth_mod)
@@ -195,7 +204,16 @@ def relation_overlap(kt_mod, kh_mod, kth_mod, replacements):
 prediction_ids = defaultdict(lambda:len(prediction_ids))
 prover_ids = defaultdict(lambda:len(prover_ids))
 
+def drs_patient_overlap(drs_t, drs_h):
+    for child in drs_t.getroot():
+        print child.tag, child.attrib
+    
+    return 1
+
 def get_johans_features(modsizedif, prediction):
+    """
+    Read the outputs of johans system
+    """
     data = []
    
     data.append(prover_ids[modsizedif[0].split()[0][:-1]]) # prover output
@@ -255,6 +273,3 @@ if config.RECALC_FEATURES:
     word_ids, projections = load_semeval_data.load_embeddings()
 
     entailment_judgements = get_entailment_judgements()
-    
-#TODO, johans scores los
-#get_entailment_judgements doet ie het?
