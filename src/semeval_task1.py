@@ -93,24 +93,28 @@ def get_features(line):
     Add the name to the feature_names array.
     """
     johans_features = feature_extraction.get_johans_features(line[10],line[11])
+    entailment_judgements = feature_extraction.get_entailment_judgements()
     features = [
-        feature_extraction.sentence_distance(line[1], line[2]) # Cosine distance between sentences
-        feature_extraction.word_overlap(line[1], line[2]),      # Proportion of word overlap
-        feature_extraction.word_overlap2(line[1], line[2], line[3], line[4], line[12]),               # Proportion of word overlap with the help of paraphrases
-        feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
-        feature_extraction.synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
-        feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length    
-        johans_features[0],                             # prover output
-        johans_features[1],                             # domain novelty
-        johans_features[2],                             # relation novelty
-        johans_features[3],                             # wordnet novelty                
-        johans_features[4],                             # model novelty
-        johans_features[5],                             # word overlap
-        johans_features[6],                              # prediction.txt
+        #feature_extraction.word_overlap(line[1], line[2]),      # Proportion of word overlap
+        #feature_extraction.word_overlap2(line[1], line[2], line[3], line[4], line[12]),               # Proportion of word overlap with the help of paraphrases
+        #feature_extraction.sentence_lengths(line[1], line[2]),  # Proportion of difference in sentence length    
+        #feature_extraction.sentence_distance(line[1], line[2]) # Cosine distance between sentences
+        #feature_extraction.synset_overlap(line[1], line[2]),    # Proportion of synset lemma overlap
+        #feature_extraction.synset_distance(line[1], line[2]),   # Synset distance (Does not seem to help much?)
+        #feature_extraction.instance_overlap(line[5], line[6], line[7], line[12]),  # Instances overlap with the help of paraphrases
+        #feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])  # Relation overlap in models with the help of paraphrases        johans_features[0],                             # prover output
+        #johans_features[1],                             # domain novelty
+        #johans_features[2],                             # relation novelty
+        #johans_features[3],                             # wordnet novelty                
+        #johans_features[4],                             # model novelty
+        #johans_features[5],                             # word overlap
+        #johans_features[6],                              # prediction.txt
+        entailment_judgements[0],
+        entailment_judgements[1],
+        entailment_judgements[2]
         #abs(line[8], line[9]),              # DRS Complexity
-
-        feature_extraction.instance_overlap(line[5], line[6], line[7], line[12]),  # Instances overlap with the help of paraphrases
-        feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])  # Relation overlap in models with the help of paraphrases
+        #TODO needs to be rewritten for using the xml files
+        
             ]
 
     #features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
