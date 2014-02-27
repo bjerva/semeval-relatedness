@@ -44,6 +44,8 @@ def load_embeddings():
         vector_file = 'wiki_giga_vectors.txt'
     elif num == 3:
         vector_file = 'vectors_en.txt'
+    elif num == 4:
+        vector_file = 'vectors_giga.txt'
 
     try:
         if config.DEBUG: stdout.write('loading embedding {0} from archives.. '.format(num))
