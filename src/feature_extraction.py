@@ -10,6 +10,7 @@ __email__  = 'j.bjerva@rug.nl'
 import os
 import requests
 import numpy as np
+import xml.etree.ElementTree
 
 from collections import defaultdict
 from scipy.spatial.distance import cosine
@@ -191,7 +192,7 @@ def get_relation_overlap(kt_mod, kh_mod, kth_mod):
   
 def relation_overlap(kt_mod, kh_mod, kth_mod, replacements):
     """
-    Calculate the amount of overlap between the relations in the models of sentence_a (t) and sentence_b (h).
+    Calculate the amount of overlap between the relations in the models of t and h.
     """
     score = get_relation_overlap(kt_mod, kh_mod, kth_mod)
     for replacement in replacements:
@@ -200,15 +201,85 @@ def relation_overlap(kt_mod, kh_mod, kth_mod, replacements):
             score = new_score
     return score
 
+def get_nouns(root):
+    """
+    Return the list of nouns as found in the boxer xml 'root'
+    """
+    nouns = []
+    for child in root.findall("./xdrs/taggedtokens/tagtoken/tags"):
+        noun = False
+        for grandchildren in child.findall("./tag[@type='pos']"):
+            if grandchildren.text == 'NN' or grandchildren.text == 'NNS':
+                noun = True
+        if noun == True:
+            for grandchildren in child.findall("./tag[@type='lemma']"):
+                nouns.append(grandchildren.text)
+    return nouns
+
+def noun_overlap(t_xml, h_xml, replacements):
+    """
+    Calculate the amount of overlap between all nouns in t and h
+    """
+    score = 0
+    if t_xml == None or h_xml == None:
+        return 0
+    t_set = set(get_nouns(t_xml.getroot()))
+    h_set = set(get_nouns(h_xml.getroot()))
+    if float(len(t_set | h_set)) > 0:
+        score = len(t_set & h_set) / float(len(t_set | h_set))
+    '''
+    for replacement in replacements:
+        t_set = set(get_nouns(replacements[8].getroot())) ##waarom werkt dit niet?
+        h_set = set(get_nouns(replacements[9].getroot()))
+        if float(len(t_set | h_set)) > 0:
+            new_score = len(t_set & h_set) / float(len(t_set | h_set))
+            if new_score > score:
+                score = new_score
+    '''
+    print score
+    return score
+    
+def get_verbs(root):
+    """
+    Return the list of verbs as found in the boxer xml 'root'
+    """
+    verbs = []
+    for child in root.findall("./xdrs/taggedtokens/tagtoken/tags"):
+        noun = False
+        for grandchildren in child.findall("./tag[@type='pos']"):
+            if grandchildren.text == 'VBP' or grandchildren.text == 'VBG':
+                noun = True
+        if noun == True:
+            for grandchildren in child.findall("./tag[@type='lemma']"):
+                verbs.append(grandchildren.text)
+    return verbs
+
+def verb_overlap(t_xml, h_xml, replacements):
+    """
+    Calculate the amount of overlap between all verbs in t and h
+    """
+    score = 0
+    if t_xml == None or h_xml == None:
+        return 0
+    t_set = set(get_verbs(t_xml.getroot()))
+    h_set = set(get_verbs(h_xml.getroot()))
+    if float(len(t_set | h_set)) > 0:
+        score = len(t_set & h_set) / float(len(t_set | h_set))
+    '''
+    for replacement in replacements:
+        t_set = set(get_verbs(replacements[8].getroot()))
+        h_set = set(get_verbs(replacements[9].getroot()))
+        if float(len(t_set | h_set)) > 0:
+            new_score = len(t_set & h_set) / float(len(t_set | h_set))
+            if new_score > score:
+                score = new_score
+    '''
+    print score
+    return score
+
 # Used to encode the entailment judgements numerically
 prediction_ids = defaultdict(lambda:len(prediction_ids))
 prover_ids = defaultdict(lambda:len(prover_ids))
-
-def drs_patient_overlap(drs_t, drs_h):
-    for child in drs_t.getroot():
-        print child.tag, child.attrib
-    
-    return 1
 
 def get_johans_features(modsizedif, prediction):
     """

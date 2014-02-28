@@ -111,9 +111,8 @@ def get_features(line):
         #feature_extraction.instance_overlap(line[5], line[6], line[7], line[12]),  # Instances overlap with the help of paraphrases
         #feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])  # Relation overlap in models with the help of paraphrases
         
-        feature_extraction.drs_patient_overlap(line[8], line[9])        # Patient overlap in the boxer model
-        #feature_extraction.drs_agent_overlap(line[8], line[9]),        # Agent overlap in the boxer model
-        #feature_extraction.drs_event_overlap(line[8], line[9]),        # Event overlap in the boxer model
+        #feature_extraction.noun_overlap(line[8], line[9], line[12])        # Proportion of noun overlap
+        feature_extraction.verb_overlap(line[8], line[9], line[12])        # Proportion of verb overlap
         
         #johans_features[0],                             # prover output
         #johans_features[1],                             # domain novelty
