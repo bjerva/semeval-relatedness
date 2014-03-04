@@ -10,7 +10,6 @@ __email__  = 'j.bjerva@rug.nl'
 import os
 import requests
 import numpy as np
-import xml.etree.ElementTree
 
 from collections import defaultdict
 from scipy.spatial.distance import cosine
@@ -84,7 +83,7 @@ def sentence_distance(sentence_a, sentence_b):
         if word in word_ids else [0] 
             for word in sentence_b+bigrams(sentence_b)+trigrams(sentence_b)], axis=0)
    
-    return cosine(sent_a, sent_b)
+    return float(cosine(sent_a, sent_b))
 
 def synset_overlap(sentence_a, sentence_b):
     """
@@ -236,7 +235,6 @@ def noun_overlap(t_xml, h_xml, replacements):
             if new_score > score:
                 score = new_score
     '''
-    print score
     return score
     
 def get_verbs(root):
@@ -274,7 +272,6 @@ def verb_overlap(t_xml, h_xml, replacements):
             if new_score > score:
                 score = new_score
     '''
-    print score
     return score
 
 # Used to encode the entailment judgements numerically
@@ -287,15 +284,15 @@ def get_johans_features(modsizedif, prediction):
     """
     data = []
    
-    data.append(prover_ids[modsizedif[0].split()[0][:-1]]) # prover output
+    data.append(float(prover_ids[modsizedif[0].split()[0][:-1]])) # prover output
     data.append(float(modsizedif[1].split()[0][:-1]))      # domain novelty
     data.append(float(modsizedif[2].split()[0][:-1]))      # relation novelty
     data.append(float(modsizedif[3].split()[0][:-1]))      # wordnet novelty
     data.append(float(modsizedif[4].split()[0][:-1]))      # model novelty
     data.append(float(modsizedif[5].split()[0][:-1]))      # word overlap
     
-    line = prediction[0].lower().strip() 
-    data.append(prediction_ids[line])                      # prediction.txt
+    line = prediction[0].lower().strip()
+    data.append(float(prediction_ids[line]))                      # prediction.txt
 
     return data
 #TODO, also use sick2?
@@ -327,7 +324,6 @@ def sent_complexity(sentence):
     r = requests.post(url, data=' '.join(sentence))
     complexity = drs_complexity.parse_xml(r.text)
 
-    print complexity
     return complexity
 
 def drs_complexity_difference(sentence_a, sentence_b):
