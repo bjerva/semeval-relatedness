@@ -99,7 +99,6 @@ def get_features(line):
     Add the name to the feature_names array.
     """
     johans_features = feature_extraction.get_johans_features(line[11],line[12])
-    entailment_judgements = feature_extraction.get_entailment_judgements()
     features = [
         float(feature_extraction.word_overlap2(line[2], line[3])),            # Proportion of word overlap
         float(feature_extraction.word_overlap3(line[2], line[3], line[13])),  # Proportion of word overlap with the help of paraphrases
@@ -109,6 +108,7 @@ def get_features(line):
         #feature_extraction.synset_distance(line[2], line[3])),               # Synset distance (Does not seem to help much?)
         float(feature_extraction.instance_overlap(line[6], line[7], line[8], line[13])),  # Instances overlap with the help of paraphrases
         float(feature_extraction.relation_overlap(line[6], line[7], line[8], line[13])),  # Relation overlap in models with the help of paraphrases
+        #abs(line[8], line[9]),              # DRS Complexity
         
         float(feature_extraction.noun_overlap(line[9], line[10], line[13])),        # Proportion of noun overlap
         float(feature_extraction.verb_overlap(line[9], line[10], line[13])),        # Proportion of verb overlap
@@ -120,14 +120,14 @@ def get_features(line):
         float(johans_features[4]),                             # model novelty
         float(johans_features[5]),                             # word overlap
         float(johans_features[6]),                             # prediction.txt
-        float(entailment_judgements[0][0]), #lists
-        float(entailment_judgements[1][0]), #lists
-        float(entailment_judgements[2][0]) #lists
-        #abs(line[8], line[9]),              # DRS Complexity
-        #TODO needs to be rewritten for using the xml files
-        
+#        float(entailment_judgements[0]), #lists
+#        float(entailment_judgements[1]), #lists
+#        float(entailment_judgements[2]) #lists       
     ]
-
+    features.extend(feature_extraction.entailment_judgements[str(line[0])])
+    #for i in range(0,len(features)):
+        #print i, features[i]
+    
     return features
 
 def retrieve_features(sick_train, sick_test):
