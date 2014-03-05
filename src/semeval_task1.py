@@ -98,20 +98,21 @@ def get_features(line):
     Comment out / add lines to disable / add features.
     Add the name to the feature_names array.
     """
-    johans_features = feature_extraction.get_johans_features(line[10],line[11])
+    print('-',type(line[13]))
+    johans_features = feature_extraction.get_johans_features(line[11],line[12])
     entailment_judgements = feature_extraction.get_entailment_judgements()
     features = [
-        float(feature_extraction.word_overlap2(line[1], line[2])),      # Proportion of word overlap
-        float(feature_extraction.word_overlap3(line[1], line[2], line[3], line[4], line[12])),               # Proportion of word overlap with the help of paraphrases
-        float(feature_extraction.sentence_lengths(line[1], line[2])),  # Proportion of difference in sentence length    
-        #feature_extraction.sentence_distance(line[1], line[2])), # Cosine distance between sentences
-        float(feature_extraction.synset_overlap(line[1], line[2])),    # Proportion of synset lemma overlap
-        #feature_extraction.synset_distance(line[1], line[2])),   # Synset distance (Does not seem to help much?)
-        float(feature_extraction.instance_overlap(line[5], line[6], line[7], line[12])),  # Instances overlap with the help of paraphrases
-        float(feature_extraction.relation_overlap(line[5], line[6], line[7], line[12])),  # Relation overlap in models with the help of paraphrases
+        float(feature_extraction.word_overlap2(line[2], line[3])),            # Proportion of word overlap
+        float(feature_extraction.word_overlap3(line[2], line[3], line[13])),  # Proportion of word overlap with the help of paraphrases
+        float(feature_extraction.sentence_lengths(line[2], line[3])),         # Proportion of difference in sentence length    
+        #feature_extraction.sentence_distance(line[2], line[3])),             # Cosine distance between sentences
+        float(feature_extraction.synset_overlap(line[2], line[3])),           # Proportion of synset lemma overlap
+        #feature_extraction.synset_distance(line[2], line[3])),               # Synset distance (Does not seem to help much?)
+        float(feature_extraction.instance_overlap(line[6], line[7], line[8], line[13])),  # Instances overlap with the help of paraphrases
+        float(feature_extraction.relation_overlap(line[6], line[7], line[8], line[13])),  # Relation overlap in models with the help of paraphrases
         
-        float(feature_extraction.noun_overlap(line[8], line[9], line[12])),        # Proportion of noun overlap
-        float(feature_extraction.verb_overlap(line[8], line[9], line[12])),        # Proportion of verb overlap
+        float(feature_extraction.noun_overlap(line[9], line[10], line[13])),        # Proportion of noun overlap
+        float(feature_extraction.verb_overlap(line[9], line[10], line[13])),        # Proportion of verb overlap
         
         float(johans_features[0]),                             # prover output
         float(johans_features[1]),                             # domain novelty
@@ -127,9 +128,6 @@ def get_features(line):
         #TODO needs to be rewritten for using the xml files
         
     ]
-    
-    
-        
 
     #features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
     return features
@@ -143,24 +141,22 @@ def retrieve_features(sick_train, sick_test):
         # Extract training features and targets
         print 'Feature extraction (train)...'
         train_sources = np.array([get_features(line) for line in sick_train])
-        train_targets = np.array([line[0][0] for line in sick_train])
+        train_targets = np.array([float(line[1]) for line in sick_train])
 
         for line in sick_train:
             for feature in get_features(line):
                 if type(feature) != float:
                     print(type(feature), get_features(line).index(feature))
+
         for line in sick_test:
             for feature in get_features(line):
                 if type(feature) != float:
                     print(type(feature), get_features(line).index(feature))
-        
-        for line in sick_test:
-            print(line[0][0])
-                    
+
         # Extract trial features and targets
         print 'Feature extraction (trial)...'
         trial_sources = np.array([get_features(line) for line in sick_test])
-        trial_targets = np.array([line[0][0] for line in sick_test])
+        trial_targets = np.array([float(line[1]) for line in sick_test])
 
         # Store to pickle for future reference
         with open('features_np.pickle', 'wb') as out_f:

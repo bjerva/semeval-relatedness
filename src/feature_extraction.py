@@ -31,7 +31,7 @@ def word_overlap2(sentence_a, sentence_b):
 
     return score
 
-def word_overlap3(t_raw, h_raw, t_tok, h_tok, replacements):
+def word_overlap3(t_raw, h_raw, replacements):
     """
     Calculate the word overlap of two sentences and tries to use paraphrases to get a higher score
     """
