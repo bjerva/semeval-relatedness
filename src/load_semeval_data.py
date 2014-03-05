@@ -118,6 +118,8 @@ def load_sick_data():
         for id in os.listdir(config.shared_sick):
             sick_data.append(load_sick_data_from_folder(id))
 
+        # Sort according to SICK_all.txt
+        
         with open('sick.pickle', 'wb') as out_f:
             cPickle.dump(sick_data, out_f, -1)
     
@@ -125,8 +127,6 @@ def load_sick_data():
         stdout.write(' done!\n')
 
     return sick_data
-
-    
 
 def read_txt_file(path, delimeter):
     """
@@ -136,6 +136,7 @@ def read_txt_file(path, delimeter):
         return open(path).read().split(delimeter)
     else:
         # the file at path does not exist
+        print 'None', path
         return None
     
 def read_xml_file(path):
