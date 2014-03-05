@@ -17,7 +17,7 @@ WRITE_COMPLEXITY = False # Write DRS complexity
 # Paths
 shared_sick = './working/sick/'    # Directory containing sick files
 shared_sick2 = './working/sick2/'   # Directory containing alternate sick files
-wvec_path = './working/'               # Directory containing word embeddings
+working_path = './working/'               # Directory containing word embeddings
 
 # Specify word embedding file to be used
 vector_num = 2

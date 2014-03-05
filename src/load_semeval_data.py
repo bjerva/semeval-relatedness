@@ -73,13 +73,13 @@ def load_word2vec(f_name):
     This takes a  while.
     """
     if config.DEBUG: stdout.write('\ngetting vocab size: ')
-    vocab_size = int(check_output(shlex.split('wc -l {0}'.format(config.wvec_path+f_name))).split()[0])
+    vocab_size = int(check_output(shlex.split('wc -l {0}'.format(config.working_path+f_name))).split()[0])
     if config.DEBUG: stdout.write(str(vocab_size)+'\n')
 
     word_ids = defaultdict(lambda:len(word_ids))
 
     if config.DEBUG: print 'filling rep matrix'
-    with open(config.wvec_path+f_name, 'r') as in_f:
+    with open(config.working_path+f_name, 'r') as in_f:
         # First line is <s\>, i.e. unnecessary for our purposes
         # Use to get dimensionality and throw away.
         first = in_f.readline()
@@ -115,8 +115,9 @@ def load_sick_data():
         if config.DEBUG: stdout.write(' error - loading from txt-files..')
         
         sick_data = []
-        for id in os.listdir(config.shared_sick):
-            sick_data.append(load_sick_data_from_folder(id))
+        for line in open(os.path.join(config.working_path,'SICK_all.txt')):
+            if line.split()[0] != 'pair_ID':
+                sick_data.append(load_sick_data_from_folder(line.split()[0]))
 
         with open('sick.pickle', 'wb') as out_f:
             cPickle.dump(sick_data, out_f, -1)
