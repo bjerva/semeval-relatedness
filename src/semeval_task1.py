@@ -98,7 +98,6 @@ def get_features(line):
     Comment out / add lines to disable / add features.
     Add the name to the feature_names array.
     """
-    print('-',type(line[13]))
     johans_features = feature_extraction.get_johans_features(line[11],line[12])
     entailment_judgements = feature_extraction.get_entailment_judgements()
     features = [

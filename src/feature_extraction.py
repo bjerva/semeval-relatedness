@@ -40,8 +40,8 @@ def word_overlap3(t_raw, h_raw, replacements):
     score = len(t_set & h_set) / float(len(t_set|h_set))
 
     for replacement in replacements:
-        t_set = set(word for word in replacement[1]) - config.stop_list # replacement[1] = t_raw
-        h_set = set(word for word in replacement[2]) - config.stop_list # replacement[2] = h_raw
+        t_set = set(word for word in replacement[2]) - config.stop_list # replacement[1] = t_raw
+        h_set = set(word for word in replacement[3]) - config.stop_list # replacement[2] = h_raw
         newScore = len(t_set & h_set) / float(len(t_set|h_set))
         if newScore > score:
             score = newScore
@@ -159,7 +159,7 @@ def instance_overlap(kt_mod, kh_mod, kth_mod, replacements):
     """
     score = get_instance_overlap(kt_mod, kh_mod, kth_mod)
     for replacement in replacements:
-        new_score = get_instance_overlap(replacement[5], replacement[6], replacement[7])
+        new_score = get_instance_overlap(replacement[6], replacement[7], replacement[8])
         if new_score > score:
             score = new_score
     return score
@@ -195,7 +195,7 @@ def relation_overlap(kt_mod, kh_mod, kth_mod, replacements):
     """
     score = get_relation_overlap(kt_mod, kh_mod, kth_mod)
     for replacement in replacements:
-        new_score = get_relation_overlap(replacement[5], replacement[6], replacement[7])
+        new_score = get_relation_overlap(replacement[6], replacement[7], replacement[8])
         if new_score > score:
             score = new_score
     return score
