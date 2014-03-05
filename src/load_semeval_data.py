@@ -187,7 +187,7 @@ def load_sick_data_from_folder(id):
     id_folder = os.path.join(config.shared_sick,str(id))
     id_data = []
     id_data.append(id)                                                               #data[0]
-    id_data.append(read_txt_file(os.path.join(id_folder,'gold.sim'), '\n')[0])          #data[1]
+    id_data.append(read_txt_file(os.path.join(id_folder,'gold.sim'), '\n')[0])       #data[1]
     id_data.append(read_txt_file(os.path.join(id_folder,'t'), ' '))                  #data[2]
     id_data.append(read_txt_file(os.path.join(id_folder,'h'), ' '))                  #data[3]
     id_data.append(read_txt_file(os.path.join(id_folder,'t.tok'), ' '))              #data[4]
