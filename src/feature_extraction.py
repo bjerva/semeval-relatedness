@@ -73,18 +73,20 @@ def trigrams(sentence):
                 for i, word in enumerate(sentence[:-2])] if config.USE_TRIGRAMS else []
 
 def sentence_distance(sentence_a, sentence_b):
+    
     """
     Return the cosine distance between two sentences
     """
-    sent_a = np.sum([projections[word_ids[word]] 
+    
+    sent_a = np.sum([projections[word_ids.get(word, 0)] 
         if word in word_ids else [0] 
             for word in sentence_a+bigrams(sentence_a)+trigrams(sentence_a)], axis=0)
-    sent_b = np.sum([projections[word_ids[word]] 
+    sent_b = np.sum([projections[word_ids.get(word, 0)] 
         if word in word_ids else [0] 
             for word in sentence_b+bigrams(sentence_b)+trigrams(sentence_b)], axis=0)
-   
+    print float(cosine(sent_a, sent_b))
     return float(cosine(sent_a, sent_b))
-
+    
 def synset_overlap(sentence_a, sentence_b):
     """
     Calculate the synset overlap of two sentences.
@@ -323,7 +325,6 @@ return as a dict mapping to a list with the appropriate index set to 1.
 
         # Set the index correspoinding to the judgement to 1
         results[sick_id][mapping[result]] = 1
-
     return results
 
 
