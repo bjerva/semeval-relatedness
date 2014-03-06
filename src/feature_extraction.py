@@ -283,37 +283,48 @@ def get_johans_features(modsizedif, prediction):
     Read the outputs of johans system
     """
     data = []
-   
-    data.append(float(prover_ids[modsizedif[0].split()[0][:-1]])) # prover output
+    
+    prover_output = 0
+    
+    if modsizedif[0].split()[0] == 'contradiction.':
+        prover_output = 0.0
+    if modsizedif[0].split()[0] == 'unknown.':
+        prover_output = 0.5
+    if modsizedif[0].split()[0] == 'proof.':
+        prover_output = 1.0
+
+    data.append(prover_output) # prover output
     data.append(float(modsizedif[1].split()[0][:-1]))      # domain novelty
     data.append(float(modsizedif[2].split()[0][:-1]))      # relation novelty
     data.append(float(modsizedif[3].split()[0][:-1]))      # wordnet novelty
     data.append(float(modsizedif[4].split()[0][:-1]))      # model novelty
     data.append(float(modsizedif[5].split()[0][:-1]))      # word overlap
     
-    line = prediction[0].lower().strip()
-    data.append(float(prediction_ids[line]))                      # prediction.txt
+    if prediction[0].split()[0] == 'informative':          # prediction.txt
+        data.append(0)
+    else:
+        data.append(1)
 
     return data
 #TODO, also use sick2?
 
 def get_entailment_judgements():
     """
-    Get entailment judgements from Johan's system,
-    return as a dict mapping to a list with the appropriate index set to 1.
-    """
+Get entailment judgements from Johan's system,
+return as a dict mapping to a list with the appropriate index set to 1.
+"""
     results = defaultdict(lambda: [0,0,0])
     mapping = dict(zip(('CONTRADICTION','ENTAILMENT','NEUTRAL'), range(3)))
 
-    for line in open('working/results.raw'):
+    for line in open('working/sick.run'):
         words = line.split()
         sick_id = str(words[0])
-        result = words[-1]
+        result = words[1]
 
         # Set the index correspoinding to the judgement to 1
         results[sick_id][mapping[result]] = 1
+
     return results
-#TODO, also use sick2?
 
 
 ############################################################

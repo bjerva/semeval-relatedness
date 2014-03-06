@@ -43,11 +43,11 @@ import config
 
 def regression(X_train, y_train, X_test, y_test):
     """
-    Train the regressor from Scikit-Learn.
-    """
+Train the regressor from Scikit-Learn.
+"""
     # Random forest regressor w/ param optimization
     params = {'n_estimators':1000, 'criterion':'mse', 'max_depth':20, 'min_samples_split':1, #'estimators':400, depth:20
-              'min_samples_leaf':1, 'max_features':2, 'bootstrap':True, 'oob_score':False,  #'max_features':'log2'
+              'min_samples_leaf':1, 'max_features':2, 'bootstrap':True, 'oob_score':False, #'max_features':'log2'
               'n_jobs':32, 'random_state':0, 'verbose':0, 'min_density':None, 'max_leaf_nodes':None}
     if config.DEBUG: params['verbose'] = 1
 
@@ -59,7 +59,7 @@ def regression(X_train, y_train, X_test, y_test):
     # Plot the resutls
     save_semeval_data.plot_results(regr, params, X_test, y_test, feature_names)
 
-    if config.DEBUG: 
+    if config.DEBUG:
         # Show the mean squared error
         print("Residual sum of squares: %.2f" % np.mean((regr.predict(X_test) - y_test) ** 2))
         # Explained variance score: 1 is perfect prediction
@@ -99,7 +99,6 @@ def get_features(line):
     Add the name to the feature_names array.
     """
     johans_features = feature_extraction.get_johans_features(line[11],line[12])
-    entailment_judgements = feature_extraction.get_entailment_judgements()
     features = [
         float(feature_extraction.word_overlap2(line[2], line[3])),            # Proportion of word overlap
         float(feature_extraction.word_overlap3(line[2], line[3], line[13])),  # Proportion of word overlap with the help of paraphrases
@@ -109,6 +108,7 @@ def get_features(line):
         #feature_extraction.synset_distance(line[2], line[3])),               # Synset distance (Does not seem to help much?)
         float(feature_extraction.instance_overlap(line[6], line[7], line[8], line[13])),  # Instances overlap with the help of paraphrases
         float(feature_extraction.relation_overlap(line[6], line[7], line[8], line[13])),  # Relation overlap in models with the help of paraphrases
+        #abs(line[8], line[9]),              # DRS Complexity
         
         float(feature_extraction.noun_overlap(line[9], line[10], line[13])),        # Proportion of noun overlap
         float(feature_extraction.verb_overlap(line[9], line[10], line[13])),        # Proportion of verb overlap
@@ -119,16 +119,15 @@ def get_features(line):
         float(johans_features[3]),                             # wordnet novelty                
         float(johans_features[4]),                             # model novelty
         float(johans_features[5]),                             # word overlap
-        float(johans_features[6]),                              # prediction.txt
-        float(entailment_judgements[0][0]), #lists
-        float(entailment_judgements[1][0]), #lists
-        float(entailment_judgements[2][0]) #lists
-        #abs(line[8], line[9]),              # DRS Complexity
-        #TODO needs to be rewritten for using the xml files
-        
+        float(johans_features[6]),                             # prediction.txt
+#        float(entailment_judgements[0]), #lists
+#        float(entailment_judgements[1]), #lists
+#        float(entailment_judgements[2]) #lists       
     ]
-
-    #features.extend(feature_extraction.entailment_judgements[str(line[0])])  # Get predictions from Johan's system
+    features.extend(feature_extraction.entailment_judgements[str(line[0])])
+    #for i in range(0,len(features)):
+        #print i, features[i]
+    
     return features
 
 def retrieve_features(sick_train, sick_test):
@@ -142,16 +141,37 @@ def retrieve_features(sick_train, sick_test):
         train_sources = np.array([get_features(line) for line in sick_train])
         train_targets = np.array([float(line[1]) for line in sick_train])
 
-        for line in sick_train:
-            for feature in get_features(line):
-                if type(feature) != float:
-                    print(type(feature), get_features(line).index(feature))
+        # Extract trial features and targets
+        print 'Feature extraction (trial)...'
+        trial_sources = np.array([get_features(line) for line in sick_test])
+        trial_targets = np.array([float(line[1]) for line in sick_test])
 
-        for line in sick_test:
-            for feature in get_features(line):
-                if type(feature) != float:
-                    print(type(feature), get_features(line).index(feature))
+        # Store to pickle for future reference
+        with open('features_np.pickle', 'wb') as out_f:
+            np.save(out_f, train_sources)
+            np.save(out_f, train_targets)
+            np.save(out_f, trial_sources)
+            np.save(out_f, trial_targets)
+    else:
+        with open('features_np.pickle', 'rb') as in_f:
+            train_sources = np.load(in_f)
+            train_targets = np.load(in_f)
+            trial_sources = np.load(in_f)
+            trial_targets = np.load(in_f)
 
+    return train_sources, train_targets, trial_sources, trial_targets
+
+def retrieve_features(sick_train, sick_test):
+    """
+Retrieve feature vectors, either by recalculating from text-files,
+or by loading from a pre-saved binary.
+"""
+    if config.RECALC_FEATURES:
+        # Extract training features and targets
+        print 'Feature extraction (train)...'
+        train_sources = np.array([get_features(line) for line in sick_train])
+        train_targets = np.array([float(line[1]) for line in sick_train])
+        
         # Extract trial features and targets
         print 'Feature extraction (trial)...'
         trial_sources = np.array([get_features(line) for line in sick_test])
@@ -185,6 +205,7 @@ def main():
     # Get training and trial features
     train_sources, train_targets, trial_sources, trial_targets = retrieve_features(sick_train, sick_test)
 
+    
     # Train the regressor
     clf = regression(train_sources, train_targets, trial_sources, trial_targets)
 
@@ -195,7 +216,7 @@ def main():
     save_semeval_data.write_for_evaluation(outputs, [line[0] for line in sick_test]) #Outputs and sick_ids
 
     # Check errors
-    error_diagnostic.output_errors(outputs, trial_targets, [line[0] for line in sick_test], [line[1:3] for line in sick_test]) #Outputs and sick_ids
+#    error_diagnostic.output_errors(outputs, trial_targets, [line[0] for line in sick_test], [line[1:3] for line in sick_test]) #Outputs and sick_ids
 
     # Plot deviations
     save_semeval_data.plot_deviation(outputs, trial_targets)
@@ -207,6 +228,7 @@ def main():
 
     # Run the evaluation script
     os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < src/sick_evaluation.R')
+
 
 
 if __name__ == '__main__':
