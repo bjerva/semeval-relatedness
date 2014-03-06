@@ -168,6 +168,8 @@ def load_sick2_data_from_folder(id_folder):
     id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[10]
     id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[11]
     id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[12]
+    id_data.append(get_lemmas(id_data[2]))
+    id_data.append(get_lemmas(id_data[3]))
     id_data.append([])                                                               #data[13] these are already replacements
     
     return id_data
@@ -181,6 +183,9 @@ def get_sick2_data(id):
         if str(folder).startswith("{0}.".format(id)):
             sick2_data.append(load_sick2_data_from_folder(os.path.join(config.shared_sick2, folder)))
     return sick2_data
+
+def get_lemmas(sentence):
+    return [wnl.lemmatize(word.lower().strip()) for word in sentence]
 
 def load_sick_data_from_folder(id):
     """
@@ -201,6 +206,8 @@ def load_sick_data_from_folder(id):
     id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[10]
     id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[11]
     id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[12]
+    id_data.append(get_lemmas(id_data[2]))
+    id_data.append(get_lemmas(id_data[3]))
     id_data.append(get_sick2_data(id))                                               #data[13]
 
     return id_data
