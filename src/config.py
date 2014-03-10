@@ -20,7 +20,7 @@ shared_sick2 = './working/sick2/'   # Directory containing alternate sick files
 working_path = './working/'               # Directory containing word embeddings
 
 # Specify word embedding file to be used
-vector_num = 1
+vector_num = 2
 '''
 if num == 1:
     vector_file = 'GoogleNews-vectors-negative300.txt'

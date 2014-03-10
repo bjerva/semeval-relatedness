@@ -1,4 +1,4 @@
-#!/usr/bin/python
+2#!/usr/bin/python
 
 """
 SemEval 2014, Task 1 -- Sentence Relatedness
@@ -74,11 +74,13 @@ feature_names = np.array([
     'SEN_LEN',
     'SEN_DIS', 
     'SYN_OV', 
-    #'SYN_DIS',
+    'SYN_DIS',
     'INS_OV',
     'REL_OV', 
     'NOUN_OV',
     'VERB_OV',
+    'AG_OV',
+    'PAT_OV',
     'PROV',
     'DOM_NV', 
     'REL_NV', 
@@ -101,18 +103,20 @@ def get_features(line):
     johans_features = feature_extraction.get_johans_features(line[11],line[12])
     features = [
         float(feature_extraction.word_overlap2(line[2], line[3])),            # Proportion of word overlap
-        float(feature_extraction.word_overlap3(line[2], line[3], line[15])),  # Proportion of word overlap with the help of paraphrases
+        float(feature_extraction.word_overlap3(line[2], line[3], line[17])),  # Proportion of word overlap with the help of paraphrases
         float(feature_extraction.sentence_lengths(line[2], line[3])),         # Proportion of difference in sentence length    
         float(feature_extraction.sentence_distance(line[13], line[14])),             # Cosine distance between sentences
-        float(feature_extraction.synset_overlap(line[2], line[3])),           # Proportion of synset lemma overlap
-        #feature_extraction.synset_distance(line[2], line[3])),               # Synset distance (Does not seem to help much?)
-        float(feature_extraction.instance_overlap(line[6], line[7], line[8], line[15])),  # Instances overlap with the help of paraphrases
-        float(feature_extraction.relation_overlap(line[6], line[7], line[8], line[15])),  # Relation overlap in models with the help of paraphrases
+        float(feature_extraction.synset_overlap(line[2], line[3], line[17])),           # Proportion of synset lemma overlap
+        float(feature_extraction.synset_distance(line[2], line[3], line[17])),               # Synset distance (Does not seem to help much?)
+        float(feature_extraction.instance_overlap(line[6], line[7], line[8], line[17])),  # Instances overlap with the help of paraphrases
+        float(feature_extraction.relation_overlap(line[6], line[7], line[8], line[17])),  # Relation overlap in models with the help of paraphrases
         #abs(line[8], line[9]),              # DRS Complexity
         
-        float(feature_extraction.noun_overlap(line[9], line[10], line[15])),        # Proportion of noun overlap
-        float(feature_extraction.verb_overlap(line[9], line[10], line[15])),        # Proportion of verb overlap
+        float(feature_extraction.noun_overlap(line[9], line[10], line[17])),        # Proportion of noun overlap
+        float(feature_extraction.verb_overlap(line[9], line[10], line[17])),        # Proportion of verb overlap
         
+        float(feature_extraction.agent_overlap(line[15], line[16], line[17])),    # Proportion of agent overlap
+        float(feature_extraction.patient_overlap(line[15], line[16], line[17])),  # Proportion of patient overlap
         float(johans_features[0]),                             # prover output
         float(johans_features[1]),                             # domain novelty
         float(johans_features[2]),                             # relation novelty
@@ -120,12 +124,12 @@ def get_features(line):
         float(johans_features[4]),                             # model novelty
         float(johans_features[5]),                             # word overlap
         float(johans_features[6]),                             # prediction.txt
-      
     ]
-    
     features.extend(feature_extraction.entailment_judgements[str(line[0])])
-    #for i in range(0,len(features)):
-        #print i, features[i]
+    
+   # if line[0] == '100':
+    #    for i in range(0,len(features)):
+     #       print i, features[i]
     
     return features
 
