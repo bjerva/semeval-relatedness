@@ -168,9 +168,11 @@ def load_sick2_data_from_folder(id_folder):
     id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[10]
     id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[11]
     id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[12]
-    id_data.append(get_lemmas(id_data[2]))
-    id_data.append(get_lemmas(id_data[3]))
-    id_data.append([])                                                               #data[13] these are already replacements
+    id_data.append(get_lemmas(id_data[2]))                                           #data[13] 
+    id_data.append(get_lemmas(id_data[3]))                                           #data[14]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t.drs'), '\n'))             #data[15]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h.drs'), '\n'))             #data[16]
+    id_data.append([])                                                               #data[17] these are already replacements
     
     return id_data
 
@@ -206,9 +208,11 @@ def load_sick_data_from_folder(id):
     id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[10]
     id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[11]
     id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[12]
-    id_data.append(get_lemmas(id_data[2]))
-    id_data.append(get_lemmas(id_data[3]))
-    id_data.append(get_sick2_data(id))                                               #data[13]
+    id_data.append(get_lemmas(id_data[2]))                                           #data[13]
+    id_data.append(get_lemmas(id_data[3]))                                           #data[14]
+    id_data.append(read_txt_file(os.path.join(id_folder,'t.drs'),'\n'))              #data[15]
+    id_data.append(read_txt_file(os.path.join(id_folder,'h.drs'),'\n'))              #data[16]
+    id_data.append(get_sick2_data(id))                                               #data[17]
 
     return id_data
 

@@ -84,10 +84,11 @@ def sentence_distance(sentence_a, sentence_b):
     sent_b = np.sum([projections[word_ids.get(word, 0)] 
         if word in word_ids else [0] 
             for word in sentence_b+bigrams(sentence_b)+trigrams(sentence_b)], axis=0)
-    print float(cosine(sent_a, sent_b))
+    
+    
     return float(cosine(sent_a, sent_b))
     
-def synset_overlap(sentence_a, sentence_b):
+def get_synset_overlap(sentence_a, sentence_b):
     """
     Calculate the synset overlap of two sentences.
     Currently uses the first 5 noun senses.
@@ -106,11 +107,18 @@ def synset_overlap(sentence_a, sentence_b):
     a_set = set(lemma for word in sentence_a for lemma in synsets(word))
     b_set = set(lemma for word in sentence_b for lemma in synsets(word))
     score = len(a_set&b_set)/float(len(a_set|b_set))
-
+    
     return score
-#TODO use replacements?
 
-def synset_distance(sentence_a, sentence_b):
+def synset_overlap(sentence_a, sentence_b, replacements):
+    score = get_synset_overlap(sentence_a, sentence_b)
+    for replacement in replacements:
+        new_score = get_synset_overlap(replacement[2], replacement[3])
+        if new_score > score:
+            score = new_score
+    return score
+
+def get_synset_distance(sentence_a, sentence_b):
     def distance(word, sentence_b):
         try:
             synset_a = wn.synset('{0}.n.01'.format(word))
@@ -129,9 +137,18 @@ def synset_distance(sentence_a, sentence_b):
         return max_similarity
 
     distances = [distance(word, sentence_b) for word in sentence_a]
-
+    if float(len([1 for i in distances if i > 0.0])) == 0:
+        return 0
     return sum(distances)/float(len([1 for i in distances if i > 0.0]))
-#TODO use replacements?
+
+def synset_distance(sentence_a, sentence_b, replacements):
+    score = get_synset_distance(sentence_a, sentence_b)
+    for replacement in replacements:
+        new_score = get_synset_distance(replacement[2], replacement[3])
+        if new_score > score:
+            score = new_score
+            
+    return score
 
 def get_number_of_instances(model):
     """
@@ -228,15 +245,14 @@ def noun_overlap(t_xml, h_xml, replacements):
     h_set = set(get_nouns(h_xml.getroot()))
     if float(len(t_set | h_set)) > 0:
         score = len(t_set & h_set) / float(len(t_set | h_set))
-    '''
+    
     for replacement in replacements:
-        t_set = set(get_nouns(replacements[8].getroot())) ##waarom werkt dit niet?
-        h_set = set(get_nouns(replacements[9].getroot()))
+        t_set = set(get_nouns(replacement[9].getroot()))
+        h_set = set(get_nouns(replacement[10].getroot()))
         if float(len(t_set | h_set)) > 0:
             new_score = len(t_set & h_set) / float(len(t_set | h_set))
             if new_score > score:
                 score = new_score
-    '''
     return score
     
 def get_verbs(root):
@@ -265,16 +281,84 @@ def verb_overlap(t_xml, h_xml, replacements):
     h_set = set(get_verbs(h_xml.getroot()))
     if float(len(t_set | h_set)) > 0:
         score = len(t_set & h_set) / float(len(t_set | h_set))
-    '''
+    
     for replacement in replacements:
-        t_set = set(get_verbs(replacements[8].getroot()))
-        h_set = set(get_verbs(replacements[9].getroot()))
+        t_set = set(get_verbs(replacement[9].getroot()))
+        h_set = set(get_verbs(replacement[10].getroot()))
         if float(len(t_set | h_set)) > 0:
             new_score = len(t_set & h_set) / float(len(t_set | h_set))
             if new_score > score:
                 score = new_score
-    '''
+    
     return score
+
+def get_agent(drs):
+    """
+    return all agents in the drs data as a list
+    """
+    agents = []
+    for line in drs:
+        if line.strip().startswith('sem'):
+            datalist = line.split(':')
+            for word in datalist:
+                if word.count('agent') > 0:
+                    variable = word[6:7]
+                    for word in datalist:
+                        if word.startswith('pred({0}'.format(variable)):
+                            agents.append(word.split(',')[1])
+    return agents
+                        
+def agent_overlap(t_drs, h_drs, replacements):
+    """
+    calculates the overlap between the agents in 2 drs's
+    """
+    t_agents = get_agent(t_drs) 
+    h_agents = get_agent(h_drs)
+    length = len(t_agents) + len(h_agents)
+    if len(t_agents) is 0:
+        return 0
+    common = 0
+    for agent in t_agents:
+        if agent in h_agents:
+            h_agents.pop(h_agents.index(agent))
+            common =+ 1
+    if common > 1:
+        print(common)
+    
+    return len(h_agents)/len(t_agents) #seems to work better then real comparison
+    '''
+    else:
+        for replacement in replacements:
+            if get_agent(replacement[15]) == get_agent(replacement[16]):
+                return 1
+    '''
+
+def get_patient(drs):
+    """
+    returns the patient in a drs as a list
+    """
+    for line in drs:
+        if line.strip().startswith('sem'):
+            datalist = line.split(':')
+            for word in datalist:  
+                if word.count('patient') > 0:
+                    variable = word[6:7]
+                    for word in datalist:
+                        if word.startswith('pred({0}'.format(variable)):
+                            return word.split(',')[1]
+                            
+
+def patient_overlap(t_drs, h_drs, replacements):
+    """
+    calculate the patient overlap in 2 drs's
+    """
+    if get_patient(t_drs) == get_agent(h_drs):
+        return 1
+    else:
+        for replacement in replacements:
+            if get_patient(replacement[15]) == get_patient(replacement[16]):
+                return 1
+    return 0
 
 # Used to encode the entailment judgements numerically
 prediction_ids = defaultdict(lambda:len(prediction_ids))
