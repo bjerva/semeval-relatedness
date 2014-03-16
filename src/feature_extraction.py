@@ -19,6 +19,7 @@ from nltk.corpus.reader.wordnet import WordNetError
 import drs_complexity
 import load_semeval_data
 import config
+import math
 
 
 def word_overlap2(sentence_a, sentence_b):
@@ -247,12 +248,13 @@ def noun_overlap(t_xml, h_xml, replacements):
         score = len(t_set & h_set) / float(len(t_set | h_set))
     
     for replacement in replacements:
-        t_set = set(get_nouns(replacement[9].getroot()))
-        h_set = set(get_nouns(replacement[10].getroot()))
-        if float(len(t_set | h_set)) > 0:
-            new_score = len(t_set & h_set) / float(len(t_set | h_set))
-            if new_score > score:
-                score = new_score
+        if replacement[9] != None and replacement[10] != None:
+            t_set = set(get_nouns(replacement[9].getroot()))
+            h_set = set(get_nouns(replacement[10].getroot()))
+            if float(len(t_set | h_set)) > 0:
+                new_score = len(t_set & h_set) / float(len(t_set | h_set))
+                if new_score > score:
+                    score = new_score
     return score
     
 def get_verbs(root):
@@ -283,18 +285,19 @@ def verb_overlap(t_xml, h_xml, replacements):
         score = len(t_set & h_set) / float(len(t_set | h_set))
     
     for replacement in replacements:
-        t_set = set(get_verbs(replacement[9].getroot()))
-        h_set = set(get_verbs(replacement[10].getroot()))
-        if float(len(t_set | h_set)) > 0:
-            new_score = len(t_set & h_set) / float(len(t_set | h_set))
-            if new_score > score:
-                score = new_score
+        if replacement[9] != None and replacement[10] != None:
+            t_set = set(get_verbs(replacement[9].getroot()))
+            h_set = set(get_verbs(replacement[10].getroot()))
+            if float(len(t_set | h_set)) > 0:
+                new_score = len(t_set & h_set) / float(len(t_set | h_set))
+                if new_score > score:
+                    score = new_score
     
     return score
 
 def get_agent(drs):
     """
-    return all agents in the drs data as a list
+    Return all agents in the drs data as a list
     """
     agents = []
     for line in drs:
@@ -310,7 +313,7 @@ def get_agent(drs):
                         
 def agent_overlap(t_drs, h_drs, replacements):
     """
-    calculates the overlap between the agents in 2 drs's
+    Calculates the overlap between the agents in 2 drs's
     """
     t_agents = get_agent(t_drs) 
     h_agents = get_agent(h_drs)
@@ -335,7 +338,7 @@ def agent_overlap(t_drs, h_drs, replacements):
 
 def get_patient(drs):
     """
-    returns the patient in a drs as a list
+    Returns the patient in a drs as a list
     """
     for line in drs:
         if line.strip().startswith('sem'):
@@ -359,6 +362,46 @@ def patient_overlap(t_drs, h_drs, replacements):
             if get_patient(replacement[15]) == get_patient(replacement[16]):
                 return 1
     return 0
+
+def get_pred(drs_file):
+    """
+    Returns a list of all rel and pred words in a drs
+    """
+    pred = []
+    for line in drs_file:
+        if line.strip().startswith('sem'):
+            datalist = line.split(':')
+            for statement in datalist:
+                if statement.startswith('rel('):
+                    pred.append(statement.split(',')[2])
+                if statement.startswith('pred('):
+                    pred.append(statement.split(',')[1])
+    return pred
+
+def pred_overlap(t, h):
+    """
+    A naive overlap of a drs
+    """
+    a_set = set(get_pred(t))
+    b_set = set(get_pred(h))
+    return len(a_set&b_set)/float(len(a_set|b_set))
+
+def tfidf(t, h):
+    """
+    Calculate the wordoverlap using a sort of tfidf (also doc_freq available)
+    """
+    h[0] = h[0].lower()
+    t[0] = t[0].lower()
+    score = 0
+    for word in t:
+        word = word.strip()
+        if word in h:
+            if word in config.doc_freq:
+                score += (float(config.total_sentences) - config.word_freq[word]) / config.total_sentences
+            else:
+                score += 1
+    return score
+
 
 # Used to encode the entailment judgements numerically
 prediction_ids = defaultdict(lambda:len(prediction_ids))
@@ -394,6 +437,19 @@ def get_johans_features(modsizedif, prediction):
     return data
 #TODO, also use sick2?
 
+
+def get_prediction_judgement(id):
+    """
+Get relation predictions from Johan's system,
+return as a dict mapping to a list with the appropriate index set to 1.
+"""
+    for line in open('working/sick.run'):
+        if line.split()[0] is str(id):
+            return line.split()[2]
+        print line.split()[2]
+
+    return 2.5
+
 def get_entailment_judgements():
     """
 Get entailment judgements from Johan's system,
@@ -402,14 +458,19 @@ return as a dict mapping to a list with the appropriate index set to 1.
     results = defaultdict(lambda: [0,0,0])
     mapping = dict(zip(('CONTRADICTION','ENTAILMENT','NEUTRAL'), range(3)))
 
+    firstline = True
     for line in open('working/sick.run'):
-        words = line.split()
-        sick_id = str(words[0])
-        result = words[1]
+        if firstline:
+            firstline = False
+        else:
+            words = line.split()
+            sick_id = str(words[0])
+            result = words[1]
 
-        # Set the index correspoinding to the judgement to 1
-        results[sick_id][mapping[result]] = 1
+            # Set the index correspoinding to the judgement to 1
+            results[sick_id][mapping[result]] = 1
     return results
+
 
 
 ############################################################

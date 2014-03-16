@@ -163,8 +163,8 @@ def load_sick2_data_from_folder(id_folder):
     id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod'), '\n'))            #data[6]
     id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod'), '\n'))            #data[7]
     id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod'), '\n'))           #data[8]
-    id_data.append(read_xml_file(os.path.join(id_folder,'t.xml')))                   #data[9]
-    id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[10]
+    id_data.append(read_xml_file(os.path.join(id_folder,'t.drs.xml')))                   #data[9]
+    id_data.append(read_xml_file(os.path.join(id_folder,'h.drs.xml')))                   #data[10]
     id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[11]
     id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[12]
     id_data.append(get_lemmas(id_data[2]))                                           #data[13] 
@@ -172,7 +172,7 @@ def load_sick2_data_from_folder(id_folder):
     id_data.append(read_txt_file(os.path.join(id_folder,'t.drs'), '\n'))             #data[15]
     id_data.append(read_txt_file(os.path.join(id_folder,'h.drs'), '\n'))             #data[16]
     id_data.append([])                                                               #data[17] these are already replacements
-    
+
     return id_data
 
 def get_sick2_data(id):
@@ -192,6 +192,7 @@ def load_sick_data_from_folder(id):
     """
     Load the data from the sick folder
     """
+    
     id_folder = os.path.join(config.shared_sick,str(id))
     id_data = []
     id_data.append(id)                                                               #data[0]
@@ -203,8 +204,8 @@ def load_sick_data_from_folder(id):
     id_data.append(read_txt_file(os.path.join(id_folder,'kt.mod'), '\n'))            #data[6]
     id_data.append(read_txt_file(os.path.join(id_folder,'kh.mod'), '\n'))            #data[7]
     id_data.append(read_txt_file(os.path.join(id_folder,'kth.mod'), '\n'))           #data[8]
-    id_data.append(read_xml_file(os.path.join(id_folder,'t.xml')))                   #data[9]
-    id_data.append(read_xml_file(os.path.join(id_folder,'h.xml')))                   #data[10]
+    id_data.append(read_xml_file(os.path.join(id_folder,'t.drs.xml')))                   #data[9]
+    id_data.append(read_xml_file(os.path.join(id_folder,'h.drs.xml')))                   #data[10]
     id_data.append(read_txt_file(os.path.join(id_folder,'modsizedif.txt'), '\n'))    #data[11]
     id_data.append(read_txt_file(os.path.join(id_folder,'prediction.txt'), '\n'))    #data[12]
     id_data.append(get_lemmas(id_data[2]))                                           #data[13]
