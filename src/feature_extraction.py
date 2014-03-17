@@ -386,6 +386,51 @@ def pred_overlap(t, h):
     b_set = set(get_pred(h))
     return len(a_set&b_set)/float(len(a_set|b_set))
 
+
+def get_drs(drs_file):
+    pred = []
+    rel = []
+    for line in drs_file:
+        if line.strip().startswith('sem'):
+            datalist = line.split(':')
+            for statement in datalist:
+                if statement.startswith('rel('):
+                    statement_list = statement.split(',')
+                    rel.append([statement_list[2], statement_list[0][-1:], statement_list[1]])
+                if statement.startswith('pred('):
+                    statement_list = statement.split(',')
+                    pred.append([statement_list[1], statement_list[0][-1:]])
+    # results in:     
+    # pred = [['kid', 'B'], ['smile', 'C'], ['man', 'D'], ['play', 'E'], ['outdoors', 'F']]
+    # rel = [['near', 'E', 'D'], ['with', 'D', 'C'], ['patient', 'E', 'F'], ['agent', 'E', 'B']]
+
+    list_all = []
+    for itr_rel in rel:
+        match1 = False
+        symbol1 = ''
+        symbol2 = ''
+        for itr_pred in pred:
+            if itr_rel[1] is itr_pred[1]:
+                match1 = True
+                symbol1 = itr_pred[0]
+        match2 = False
+        for itr_pred in pred:
+            if itr_rel[2] is itr_pred[1]:
+                match2 = True
+                symbol2 = itr_pred[0]
+        if match1 is False or match2 is False:
+            #TODO something more complicated is going on in the drs...
+            pass
+        else:
+            list_all.append('{0} {1} {2}'.format(itr_rel[0], symbol1, symbol2))
+    return list_all
+
+def drs(t_drs, h_drs):
+    t = set(get_pred(t_drs))
+    h = set(get_pred(h_drs))
+    score = len(t&h)/float(len(t|h))
+    return score
+
 def tfidf(t, h):
     """
     Calculate the wordoverlap using a sort of tfidf (also doc_freq available)

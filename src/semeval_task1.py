@@ -83,6 +83,7 @@ feature_names = np.array([
     #'AG_OV',
     'PAT_OV',
     'PRED_OV',
+    'DRS_OV',
     'TIDF',
     'PROV',
     'DOM_NV', 
@@ -119,6 +120,7 @@ def get_features(line):
         #float(feature_extraction.agent_overlap(line[15], line[16], line[17])),          # Proportion of agent overlap
         float(feature_extraction.patient_overlap(line[15], line[16], line[17])),         # Proportion of patient overlap
         float(feature_extraction.pred_overlap(line[15], line[16])),                      # Proportion of drs predicate overlap
+        float(feature_extraction.drs(line[15], line[16])),
         float(feature_extraction.tfidf(line[4], line[5])),                               # Word overlap using tfidf-scores
                                        
         float(johans_features[0]),                             # prover output
@@ -231,7 +233,7 @@ def main():
         save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
     # Run the evaluation script
-    os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < src/sick_evaluation.R')
+    os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < working/sick_evaluation.R')
 
 
 
