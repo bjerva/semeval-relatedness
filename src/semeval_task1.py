@@ -1,4 +1,4 @@
-2#!/usr/bin/python
+#!/usr/bin/python
 
 """
 SemEval 2014, Task 1 -- Sentence Relatedness
