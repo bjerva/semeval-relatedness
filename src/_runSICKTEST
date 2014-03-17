@@ -53,14 +53,14 @@ init()
         | sed "s/ |$/'])./" \
         | sed "s/ /','/g" > working/ppdb.${GRAM}.pl
     done
-    swipl -c src/prolog/nutcracker/para.pl working/sick
+    swipl -c src/prolog/nutcracker/para.pl working/sicktest
     axioms
 }
 
 axioms()
 {
     rm -fr ${AXIOMS}
-    COL=`cat working/sick/*/t | grep -o "a [a-z]* of [a-z]*" | sort -u | tr " " "_"`
+    COL=`cat working/sicktest/*/t | grep -o "a [a-z]* of [a-z]*" | sort -u | tr " " "_"`
     for C in ${COL}; do
     echo ${C}
     N1=`echo ${C} | cut -d"_" -f2`
