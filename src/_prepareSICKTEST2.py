@@ -6,8 +6,8 @@ import os
 import string
 import itertools
 
-shared_sick = 'working/sick/'
-shared_sick2 = 'working/sick2/'
+shared_sick = 'working/sicktest/'
+shared_sick2 = 'working/sicktest2/'
 instances = os.listdir(shared_sick)
 
 writeFile = open('test.out', 'w')
