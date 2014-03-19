@@ -6,8 +6,8 @@ import os
 import string
 import itertools
 
-shared_sick = '/home/rob/candc/working/sick/'
-shared_sick2 = '/home/rob/candc/working/sick2/'
+shared_sick = 'working/sick/'
+shared_sick2 = 'working/sick2/'
 instances = os.listdir(shared_sick)
 
 writeFile = open('test.out', 'w')
@@ -26,7 +26,7 @@ def powerset(iterable):
 
 
 paraphrases = {}
-for line in open('/home/rob/candc/working/ppdb.1'):
+for line in open('working/ppdb.1'):
     source = line.split('|')[1][1:-1]
     target = line.split('|')[4][1:-1]
     if source in paraphrases:

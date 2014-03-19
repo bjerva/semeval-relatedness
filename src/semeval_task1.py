@@ -92,10 +92,10 @@ feature_names = np.array([
     'MOD_NV',
     'WORDS1',
     'PRED',
+    #'REL_J',
     'ENT_A',
     'ENT_B',
     'ENT_C',
-    #'REL_J',
     'dummy'
     ], dtype='|S7')
 def get_features(line):
