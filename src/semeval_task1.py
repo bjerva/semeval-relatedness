@@ -182,6 +182,8 @@ or by loading from a pre-saved binary.
         # Extract trial features and targets
         print 'Feature extraction (trial)...'
         trial_sources = np.array([get_features(line) for line in sick_test])
+        for line in sick_test:
+            print line[1]
         trial_targets = np.array([float(line[1]) for line in sick_test])
 
         # Store to pickle for future reference

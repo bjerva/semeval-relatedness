@@ -17,7 +17,7 @@ bos@meaningfactory.com
 For the relatedness score we use regression on the overlap (and some other things) of the models that nutcracker (candc tools) created. We also use the result of the entailment prediction as feature. 
 
 - 5.2 Supervised or unsupervised
-the entailment task is unsupervised, and the relatedness class uses supervised learning.
+For the entailment task we sue a rule-based approacg, and the relatedness task we use a supervised learning approach.
 
 - 5.3 Critical features used
 word_overlap3: calculates first the word overlap of the normal sentences, then tries to get a higher word overlap for all possible combinations of paraphrases that can be applied to the sentence. The highest score is used.
