@@ -10,6 +10,7 @@ __email__  = 'j.bjerva@rug.nl'
 import os
 import shlex
 import cPickle
+import sPickle
 import numpy as np
 import requests
 import xml.etree.ElementTree as et
@@ -108,8 +109,9 @@ def load_sick_data():
     try:
         if config.DEBUG: stdout.write('loading sick from archives.. ')
 
-        with open('sick.pickle', 'rb') as in_f:
-            sick_data = cPickle.load(in_f)
+        sick_data = []
+        for element in sPickle.s_load(open('sick.pickle')):
+            sick_data.append(element)
 
     except IOError:
         if config.DEBUG: stdout.write(' error - loading from txt-files..')
@@ -118,9 +120,9 @@ def load_sick_data():
         for line in open(os.path.join(config.working_path,'SICK_all.txt')):
             if line.split()[0] != 'pair_ID':
                 sick_data.append(load_sick_data_from_folder(line.split()[0]))
-
+                
         with open('sick.pickle', 'wb') as out_f:
-            cPickle.dump(sick_data, out_f, -1)
+            sPickle.s_dump(sick_data, out_f)
     
     if config.DEBUG:
         stdout.write(' done!\n')
@@ -137,6 +139,12 @@ def read_txt_file(path, delimeter):
         return open(path).read().split(delimeter)
     else:
         # the file at path does not exist
+        return None
+    
+def read_gold(path, delimeter):
+    if os.path.isfile(path):
+        return open(path).read().split(delimeter)[0]
+    else:
         return None
     
 def read_xml_file(path):
@@ -192,11 +200,10 @@ def load_sick_data_from_folder(id):
     """
     Load the data from the sick folder
     """
-    
     id_folder = os.path.join(config.shared_sick,str(id))
     id_data = []
     id_data.append(id)                                                               #data[0]
-    id_data.append(read_txt_file(os.path.join(id_folder,'gold.sim'), '\n')[0])       #data[1]
+    id_data.append(read_gold(os.path.join(id_folder,'gold.sim'), '\n'))              #data[1]
     id_data.append(read_txt_file(os.path.join(id_folder,'t'), ' '))                  #data[2]
     id_data.append(read_txt_file(os.path.join(id_folder,'h'), ' '))                  #data[3]
     id_data.append(read_txt_file(os.path.join(id_folder,'t.tok'), ' '))              #data[4]

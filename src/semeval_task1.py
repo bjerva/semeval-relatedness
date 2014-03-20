@@ -55,6 +55,7 @@ Train the regressor from Scikit-Learn.
 
     # Train the model using the training sets
     regr.fit(X_train, y_train)
+    return regr
 
     # Plot the resutls
     save_semeval_data.plot_results(regr, params, X_test, y_test, feature_names)
@@ -104,7 +105,7 @@ def get_features(line):
     Comment out / add lines to disable / add features.
     Add the name to the feature_names array.
     """
-    johans_features = feature_extraction.get_johans_features(line[11],line[12])
+    johans_features = feature_extraction.get_johans_features(line[11],line[12], line[0])
     features = [
         float(feature_extraction.word_overlap2(line[2], line[3])),                       # Proportion of word overlap
         float(feature_extraction.word_overlap3(line[2], line[3], line[17])),             # Proportion of word overlap with the help of paraphrases
@@ -201,9 +202,8 @@ or by loading from a pre-saved binary.
 def main():
     # Load sick data
     sick_data = load_semeval_data.load_sick_data()
-
     # Split into training/test
-    split = int(len(sick_data)*0.9)
+    split = 5000
     sick_train = sick_data[:split]
     sick_test = sick_data[split:]
     if config.DEBUG: print ('test size: {0}, training size: {1}'.format(len(sick_test), len(sick_train)))
@@ -225,7 +225,7 @@ def main():
 #    error_diagnostic.output_errors(outputs, trial_targets, [line[0] for line in sick_test], [line[1:3] for line in sick_test]) #Outputs and sick_ids
 
     # Plot deviations
-    save_semeval_data.plot_deviation(outputs, trial_targets)
+   # save_semeval_data.plot_deviation(outputs, trial_targets)
 
     # Write to MESH
     if config.WRITE_TO_MESH:
@@ -233,7 +233,7 @@ def main():
         save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
     # Run the evaluation script
-    os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < working/sick_evaluation.R')
+    #os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < working/sick_evaluation.R')
 
 
 

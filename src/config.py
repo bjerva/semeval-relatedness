@@ -16,8 +16,8 @@ USE_BOXER = False        # Use boxer features
 WRITE_COMPLEXITY = False # Write DRS complexity
 
 # Paths
-shared_sick = '../sick/'    # Directory containing sick files
-shared_sick2 = '../sick2/'   # Directory containing alternate sick files
+shared_sick = './working/sick/'    # Directory containing sick files
+shared_sick2 = './working/sick2/'   # Directory containing alternate sick files
 working_path = './working/'               # Directory containing word embeddings
 
 # Specify word embedding file to be used
@@ -41,34 +41,36 @@ total_words = 0
 total_sentences = 0
 for id in os.listdir(shared_sick):
     path = os.path.join(shared_sick, id, 't.tok')
-    for line in open(path):
-        total_words += len(line.split())
-        total_sentences += 1
-        for word in line.split():
-            word = word.lower()
-            if word in word_freq:
-                word_freq[word] += 1
-            else:
-                word_freq[word] = 1
-        for word in set(line.split()):
-            word = word.lower()
-            if word in doc_freq:
-                doc_freq[word] += 1
-            else:
-                doc_freq[word] = 1
+    if os.path.isfile(path):
+        for line in open(path):
+            total_words += len(line.split())
+            total_sentences += 1
+            for word in line.split():
+                word = word.lower()
+                if word in word_freq:
+                    word_freq[word] += 1
+                else:
+                    word_freq[word] = 1
+            for word in set(line.split()):
+                word = word.lower()
+                if word in doc_freq:
+                    doc_freq[word] += 1
+                else:
+                    doc_freq[word] = 1
     path = os.path.join(shared_sick, id, 'h.tok')
-    for line in open(path):
-        total_words += len(line.split())
-        total_sentences += 1
-        for word in line.split():
-            word = word.lower()
-            if word in word_freq:
-                word_freq[word] += 1
-            else:
-                word_freq[word] = 1
-        for word in set(line.split()):
-            word = word.lower()
-            if word in doc_freq:
-                doc_freq[word] += 1
-            else:
-                doc_freq[word] = 1
+    if os.path.isfile(path):
+        for line in open(path):
+            total_words += len(line.split())
+            total_sentences += 1
+            for word in line.split():
+                word = word.lower()
+                if word in word_freq:
+                    word_freq[word] += 1
+                else:
+                    word_freq[word] = 1
+            for word in set(line.split()):
+                word = word.lower()
+                if word in doc_freq:
+                    doc_freq[word] += 1
+                else:
+                    doc_freq[word] = 1

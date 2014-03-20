@@ -38,15 +38,16 @@ def word_overlap3(t_raw, h_raw, replacements):
     """
     t_set = set(word for word in t_raw) - config.stop_list
     h_set = set(word for word in h_raw) - config.stop_list
-    score = len(t_set & h_set) / float(len(t_set|h_set))
+    score = len(t_set & h_set) / float(len(t_set|h_set))    
+    highestscore = 0
 
     for replacement in replacements:
         t_set = set(word for word in replacement[2]) - config.stop_list # replacement[1] = t_raw
         h_set = set(word for word in replacement[3]) - config.stop_list # replacement[2] = h_raw
         newScore = len(t_set & h_set) / float(len(t_set|h_set))
-        if newScore > score:
-            score = newScore
-    return score
+        if newScore > highestscore:
+            highestscore = newScore
+    return (score + highestscore) /2
 
 
 def sentence_lengths(sentence_a, sentence_b):
@@ -452,13 +453,16 @@ def tfidf(t, h):
 prediction_ids = defaultdict(lambda:len(prediction_ids))
 prover_ids = defaultdict(lambda:len(prover_ids))
 
-def get_johans_features(modsizedif, prediction):
+def get_johans_features(modsizedif, prediction, id):
     """
     Read the outputs of johans system
     """
     data = []
     
     prover_output = 0
+    if modsizedif == None:
+        print id
+        return ['1','1','1','1','1','1','1']
     
     if modsizedif[0].split()[0] == 'contradiction.':
         prover_output = 0.0
