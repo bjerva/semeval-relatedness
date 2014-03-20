@@ -1,0 +1,78 @@
+1. Team ID
+The_Meaning_Factory
+
+2. Team affiliation
+RUG
+
+3. Contact information
+bos@meaningfactory.com
+
+4. Submission, i.e., ZIP file name
+
+
+5. System specs
+
+- 5.1 Core approach
+(?)
+For the relatedness score we use regression on the overlap (and some other things) of the models that nutcracker (candc tools) created. We also use the result of the entailment prediction as feature. 
+
+- 5.2 Supervised or unsupervised
+For the entailment task we sue a rule-based approacg, and the relatedness task we use a supervised learning approach.
+
+- 5.3 Critical features used
+word_overlap3: calculates first the word overlap of the normal sentences, then tries to get a higher word overlap for all possible combinations of paraphrases that can be applied to the sentence. The highest score is used.
+
+instance_overlap: the overlap between the instances in the logical model.
+
+relation_overlap: the overlap between the relations in the logical model, also tries on the paraphrased sentences.
+
+noun_overlap: the amount of overlap in the lemma's of the nouns of both sentencens, also tries on the paraphrased sentences.
+
+verb_overlap: the amount of overlap in the lemma's of the verbs of both sentences, also tries on the paraphrased sentences.
+
+agent_overlap: the amount of overlap between the agents in the DRS, also tries on the paraphrased sentences.
+
+patient_overlap: the amount of overlap between the patients in the DRS, also tries on the paraphrased sentences.
+
+pred_overlap: overlap between all names of relations and predicates in the DRS
+
+drs: the overlap of all relations and predicates in the DRS if they're initialized
+
+tfidf: word overlap using weighting with the tfidf of the words.
+
+
+- 5.4 Critical tools used
+for the entailment task:
+swi-prolog
+bin/nc
+bin/boxer
+bin/tokkie
+ext/bin/bliksem
+ext/bin/mace
+ext/bin/paradox
+ext/bin/vampire
+bin/soap_client
+bin/soap_server
+
+for the relatedness task:
+python2.7
+python-nltk 
+python-requests
+python-numpy
+python-scipy
+python-matplotlib
+for scikit you need the dev version:
+git clone git@github.com:scikit-learn/scikit-learn.git
+
+- 5.5 Significant data pre/post-processing
+We use the xxl paraphrases file from http://www.cis.upenn.edu/~ccb/ppdb/ to create alternative versions of the sentences. The _prepareSICK2.py file checks for all possible replacements and create all possible replacement combination sentences in the sick2 folder.
+The script also tries to remove negations in the same way, (by replacing 'no' by 'a' for example).
+
+
+- 5.6 Other data used (outside of the provided)
+wordnet data from nltk
+paraphrases from http://www.cis.upenn.edu/~ccb/ppdb/
+wiki_giga_vectors from (?)
+candc trained models from http://svn.ask.it.usyd.edu.au/download/candc/models-1.02.tbz2
+
+6 References (if applicable)
