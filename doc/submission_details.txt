@@ -13,15 +13,14 @@ bos@meaningfactory.com
 5. System specs
 
 - 5.1 Core approach
-The RTE system is based on ...
-The relatedness system is based on extracting various types of features from the data set, which in combination with word vectors from a CDSM model is used to train a regressor.
+The RTE system is based on semantic parsing and logical inference. The text and hypothesis sentences are parsed with Boxer and the resulting logical forms (DRSs) are given to theorem provers for first-order logic to predict contradictions or entailments. WordNet and PPDB are used as lexical resources.
+The relatedness system is based on extracting various types of features from the data set, which in combination with word vectors from a CDSM model is used to train a random forest regressor.
 
 - 5.2 Supervised or unsupervised
 RTE system: Rule-based
 Relatedness system: Supervised
 
 - 5.3 Critical features used
-
 distributional semantic model,
 word net distances,
 word overlap,
@@ -55,15 +54,17 @@ python-matplotlib
 word2vec
 
 - 5.5 Significant data pre/post-processing
-We use the xxl paraphrases file from http://www.cis.upenn.edu/~ccb/ppdb/ to create alternative versions of the sentences. The _prepareSICK2.py file checks for all possible replacements and create all possible replacement combination sentences in the sick2 folder.
-The script also tries to remove negations in the same way, (by replacing 'no' by 'a' for example).
+We use the xxl paraphrases file from http://www.cis.upenn.edu/~ccb/ppdb/ to create alternative versions of the sentences. 
+We create all possible replacement combination sentences and use these to extract features.
 
 - 5.6 Other data used (outside of the provided)
-wordnet data from nltk
-paraphrases from http://www.cis.upenn.edu/~ccb/ppdb/
-candc trained models from http://svn.ask.it.usyd.edu.au/download/candc/models-1.02.tbz2
+WordNet
+Paraphrases -- http://www.cis.upenn.edu/~ccb/ppdb/
+Trained models for the CandC parser from http://svn.ask.it.usyd.edu.au/download/candc/models-1.02.tbz2
 
-We also use word vectors trained using the tool word2vec on the first billion characters of Wikipedia (http://mattmahoney.net/dc/enwik9.zip) and an English gigaword corpus (http://www.statmt.org/wmt11/translation-task.html#download). This data
-was cleaned using the scripts available here http://www.statmt.org/wmt08/scripts.tgz.
+For the training of the word vector models:
+The first billion characters of Wikipedia (http://mattmahoney.net/dc/enwik9.zip)
+English gigaword corpus (http://www.statmt.org/wmt11/translation-task.html#download).
+This data was cleaned using the scripts available here http://www.statmt.org/wmt08/scripts.tgz.
 
 6 References (if applicable)
