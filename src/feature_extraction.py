@@ -13,6 +13,8 @@ import numpy as np
 
 from collections import defaultdict
 from scipy.spatial.distance import cosine
+from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import jaccard
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import WordNetError
 
@@ -21,6 +23,15 @@ import load_semeval_data
 import config
 import math
 
+def id(id):
+    score = float(id)/10000.0
+    return score
+
+def id2(id):
+    if float(id) < 1000:
+        return 0.0
+    else:
+        return float(id[0])
 
 def word_overlap2(sentence_a, sentence_b):
     """
@@ -29,6 +40,7 @@ def word_overlap2(sentence_a, sentence_b):
     a_set = set(word for word in sentence_a) - config.stop_list
     b_set = set(word for word in sentence_b) - config.stop_list
     score = len(a_set&b_set)/float(len(a_set|b_set))# len(s1&s2)/max(len(s1),len(s2))
+    score = (len(a_set|b_set)-len(b_set))/len(a_set) #8337
 
     return score
 
@@ -36,18 +48,18 @@ def word_overlap3(t_raw, h_raw, replacements):
     """
     Calculate the word overlap of two sentences and tries to use paraphrases to get a higher score
     """
-    t_set = set(word for word in t_raw) - config.stop_list
-    h_set = set(word for word in h_raw) - config.stop_list
+    t_set = set(word for word in t_raw) #- config.stop_list
+    h_set = set(word for word in h_raw) #- config.stop_list
     score = len(t_set & h_set) / float(len(t_set|h_set))    
     highestscore = 0
 
     for replacement in replacements:
-        t_set = set(word for word in replacement[2]) - config.stop_list # replacement[1] = t_raw
-        h_set = set(word for word in replacement[3]) - config.stop_list # replacement[2] = h_raw
+        t_set = set(word for word in replacement[2]) #- config.stop_list # replacement[1] = t_raw
+        h_set = set(word for word in replacement[3]) #- config.stop_list # replacement[2] = h_raw
         newScore = len(t_set & h_set) / float(len(t_set|h_set))
         if newScore > highestscore:
             highestscore = newScore
-    return (score + highestscore) /2
+    return highestscore
 
 
 def sentence_lengths(sentence_a, sentence_b):
@@ -98,7 +110,7 @@ def get_synset_overlap(sentence_a, sentence_b):
     def synsets(word):
         sense_lemmas = []
         for pos in ('n'):#,'a'):
-            for i in xrange(5):
+            for i in xrange(10):
                 try:
                     sense_lemmas += [lemma.name 
                         for lemma in wn.synset('{0}.{1}.0{2}'.format(word, pos, i)).lemmas]
@@ -169,7 +181,7 @@ def get_instance_overlap(kt_mod, kh_mod, kth_mod):
     kh = get_number_of_instances(kh_mod)
     kth = get_number_of_instances(kth_mod)
     if kh == 0 or kt == 0 or kth == 0:
-        return 0
+        return 0.1
     else: 
         return 1 - (kth - kt) / kh
     
@@ -179,6 +191,7 @@ def instance_overlap(kt_mod, kh_mod, kth_mod, replacements):
     And also try to do the same while replacing words with paraphrases to obtain a higher score.
     """
     score = get_instance_overlap(kt_mod, kh_mod, kth_mod)
+    
     for replacement in replacements:
         new_score = get_instance_overlap(replacement[6], replacement[7], replacement[8])
         if new_score > score:
@@ -319,23 +332,18 @@ def agent_overlap(t_drs, h_drs, replacements):
     t_agents = get_agent(t_drs) 
     h_agents = get_agent(h_drs)
     length = len(t_agents) + len(h_agents)
-    if len(t_agents) is 0:
-        return 0
     common = 0
     for agent in t_agents:
         if agent in h_agents:
             h_agents.pop(h_agents.index(agent))
-            common =+ 1
-    if common > 1:
-        print(common)
+            return 1
+    #seems to work better then real comparison
     
-    return len(h_agents)/len(t_agents) #seems to work better then real comparison
-    '''
     else:
         for replacement in replacements:
             if get_agent(replacement[15]) == get_agent(replacement[16]):
                 return 1
-    '''
+    return 0
 
 def get_patient(drs):
     """
@@ -430,6 +438,7 @@ def drs(t_drs, h_drs):
     t = set(get_pred(t_drs))
     h = set(get_pred(h_drs))
     score = len(t&h)/float(len(t|h))
+
     return score
 
 def tfidf(t, h):

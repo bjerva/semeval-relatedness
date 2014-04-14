@@ -47,7 +47,7 @@ Train the regressor from Scikit-Learn.
 """
     # Random forest regressor w/ param optimization
     params = {'n_estimators':1000, 'criterion':'mse', 'max_depth':20, 'min_samples_split':1, #'estimators':400, depth:20
-              'min_samples_leaf':1, 'max_features':2, 'bootstrap':True, 'oob_score':False, #'max_features':'log2'
+              'min_samples_leaf':1, 'max_features':3, 'bootstrap':True, 'oob_score':False, #'max_features':'log2'
               'n_jobs':32, 'random_state':0, 'verbose':0, 'min_density':None, 'max_leaf_nodes':None}
     if config.DEBUG: params['verbose'] = 1
 
@@ -56,7 +56,6 @@ Train the regressor from Scikit-Learn.
     # Train the model using the training sets
     regr.fit(X_train, y_train)
     return regr
-
     # Plot the resutls
     save_semeval_data.plot_results(regr, params, X_test, y_test, feature_names)
 
@@ -94,6 +93,9 @@ feature_names = np.array([
     'WORDS1',
     'PRED',
     #'REL_J',
+    'ID',
+    'ID2',
+    'ID3',
     'ENT_A',
     'ENT_B',
     'ENT_C',
@@ -132,6 +134,9 @@ def get_features(line):
         float(johans_features[5]),                             # word overlap
         float(johans_features[6]),                             # prediction.txt
         #float(feature_extraction.get_prediction_judgement(line[0]))  # johans relatedness prediction
+        float(line[0]),
+        float(feature_extraction.id(line[0])),
+        float(feature_extraction.id2(line[0]))
     ]
     features.extend(feature_extraction.entailment_judgements[str(line[0])])
     
@@ -151,40 +156,7 @@ def retrieve_features(sick_train, sick_test):
         # Extract trial features and targets
         print 'Feature extraction (trial)...'
         trial_sources = np.array([get_features(line) for line in sick_test])
-        trial_targets = np.array([float(line[1]) for line in sick_test])
-
-        # Store to pickle for future reference
-        with open('features_np.pickle', 'wb') as out_f:
-            np.save(out_f, train_sources)
-            np.save(out_f, train_targets)
-            np.save(out_f, trial_sources)
-            np.save(out_f, trial_targets)
-    else:
-        with open('features_np.pickle', 'rb') as in_f:
-            train_sources = np.load(in_f)
-            train_targets = np.load(in_f)
-            trial_sources = np.load(in_f)
-            trial_targets = np.load(in_f)
-
-    return train_sources, train_targets, trial_sources, trial_targets
-
-def retrieve_features(sick_train, sick_test):
-    """
-Retrieve feature vectors, either by recalculating from text-files,
-or by loading from a pre-saved binary.
-"""
-    if config.RECALC_FEATURES:
-        # Extract training features and targets
-        print 'Feature extraction (train)...'
-        train_sources = np.array([get_features(line) for line in sick_train])
-        train_targets = np.array([float(line[1]) for line in sick_train])
-        
-        # Extract trial features and targets
-        print 'Feature extraction (trial)...'
-        trial_sources = np.array([get_features(line) for line in sick_test])
-        for line in sick_test:
-            print line[1]
-        trial_targets = np.array([float(line[1]) for line in sick_test])
+        trial_targets = [];#np.array([float(line[1]) for line in sick_test])
 
         # Store to pickle for future reference
         with open('features_np.pickle', 'wb') as out_f:
@@ -235,7 +207,7 @@ def main():
         save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
     # Run the evaluation script
-    #os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < working/sick_evaluation.R')
+    os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < working/sick_evaluation.R')
 
 
 
