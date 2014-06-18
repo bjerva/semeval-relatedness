@@ -1,0 +1,70 @@
+1. Team ID
+The_Meaning_Factory
+
+2. Team affiliation
+RUG
+
+3. Contact information
+bos@meaningfactory.com
+
+4. Submission, i.e., ZIP file name
+
+
+5. System specs
+
+- 5.1 Core approach
+The RTE system is based on semantic parsing and logical inference. The text and hypothesis sentences are parsed with Boxer and the resulting logical forms (DRSs) are given to theorem provers for first-order logic to predict contradictions or entailments. WordNet and PPDB are used as lexical resources.
+The relatedness system is based on extracting various types of features from the data set, which in combination with word vectors from a CDSM model is used to train a random forest regressor.
+
+- 5.2 Supervised or unsupervised
+RTE system: Rule-based
+Relatedness system: Supervised
+
+- 5.3 Critical features used
+distributional semantic model,
+word net distances,
+word overlap,
+noun overlap,
+verb overlap,
+agent overlap,
+patient overlap,
+predicate overlap,
+logical instance overlap,
+logical relation overlap,
+drs relations
+
+- 5.4 Critical tools used
+RTE system:
+swi-prolog
+boxer
+nutcracker
+tokkie
+mace
+paradox
+vampire
+
+Relatedness system:
+python2.7
+python-sklearn
+python-nltk 
+python-requests
+python-numpy
+python-scipy
+python-matplotlib
+word2vec
+
+- 5.5 Significant data pre/post-processing
+We use the xxl paraphrases file from http://www.cis.upenn.edu/~ccb/ppdb/ to create alternative versions of the sentences. 
+We create all possible replacement combination sentences and use these to extract features.
+
+- 5.6 Other data used (outside of the provided)
+WordNet
+Paraphrases -- http://www.cis.upenn.edu/~ccb/ppdb/
+Trained models for the CandC parser from http://svn.ask.it.usyd.edu.au/download/candc/models-1.02.tbz2
+
+For the training of the word vector models:
+The first billion characters of Wikipedia (http://mattmahoney.net/dc/enwik9.zip)
+English gigaword corpus (http://www.statmt.org/wmt11/translation-task.html#download).
+This data was cleaned using the scripts available here http://www.statmt.org/wmt08/scripts.tgz.
+
+6 References (if applicable)
