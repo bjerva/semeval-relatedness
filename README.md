@@ -13,8 +13,13 @@ Determining Semantic Similarity, Accepted to SemEval 2014
 Temporary .bib:
 
 @inproceedings{bjerva:14,
+
   title={The Meaning Factory: Formal Semantics for Recognizing Textual Entailment and Determining Semantic Similarity},
+  
   author={Bjerva, Johannes and Bos, Johan and {van der Goot}, Rob and Nissim, Malvina},
+  
   booktitle={Accepted to SemEval 2014},
+  
   year={2014}
+  
 }
