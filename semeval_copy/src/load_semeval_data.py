@@ -120,8 +120,7 @@ def load_sick_data():
         for line in open(os.path.join(config.working_path,'SICK_all.txt')):
             if line.split()[0] != 'pair_ID':
                 sick_data.append(load_sick_data_from_folder(line.split()[0]))
-
-        # Sort according to SICK_all.txt
+                
         with open('sick.pickle', 'wb') as out_f:
             sPickle.s_dump(sick_data, out_f)
     
@@ -129,6 +128,8 @@ def load_sick_data():
         stdout.write(' done!\n')
 
     return sick_data
+
+    
 
 def read_txt_file(path, delimeter):
     """
@@ -138,7 +139,6 @@ def read_txt_file(path, delimeter):
         return open(path).read().split(delimeter)
     else:
         # the file at path does not exist
-        print 'None', path
         return None
     
 def read_gold(path, delimeter):
