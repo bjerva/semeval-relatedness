@@ -196,10 +196,10 @@ def main():
     save_semeval_data.write_for_evaluation(outputs, [line[0] for line in sick_test]) #Outputs and sick_ids
 
     # Check errors
-#    error_diagnostic.output_errors(outputs, trial_targets, [line[0] for line in sick_test], [line[1:3] for line in sick_test]) #Outputs and sick_ids
+    error_diagnostic.output_errors(outputs, trial_targets, [line[0] for line in sick_test], [line[1:3] for line in sick_test]) #Outputs and sick_ids
 
     # Plot deviations
-   # save_semeval_data.plot_deviation(outputs, trial_targets)
+    save_semeval_data.plot_deviation(outputs, trial_targets)
 
     # Write to MESH
     if config.WRITE_TO_MESH:
@@ -207,7 +207,7 @@ def main():
         save_semeval_data.write_to_mesh(trial_sources, trial_targets, [line[0] for line in sick_test], False) #sick_ids
 
     # Run the evaluation script
-    os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_trial.txt < working/sick_evaluation.R')
+    os.system('R --no-save --slave --vanilla --args working/foo.txt working/SICK_test_annotated.txt < working/sick_evaluation.R')
 
 
 
