@@ -5,6 +5,7 @@ System submitted by team The Meaning Factory for shared task 1 of SemEval
 2014.
 
 If you use this work, please use the following citation:
+
 Bjerva, J., Bos, J., van der Goot, R., & Nissim, M. (2014). The Meaning Factory: Formal Semantics for Recognizing Textual Entailment and Determining Semantic Similarity. In SemEval 2014: International Workshop on Semantic Evaluation (pp. 642-646).
 
 bib:
